@@ -71,6 +71,13 @@ Claude Code:
 /plugin install monk@monk-plugins
 ```
 
+If the plugin is already installed, update it after every plugin version bump:
+
+```text
+/plugin update monk@monk-plugins
+/reload-plugins
+```
+
 Cursor:
 
 ```text
