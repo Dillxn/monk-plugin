@@ -59,7 +59,8 @@ Blocked shell work:
   endpoint checks. If the failure is application code, fix the source and
   redeploy through Monk.
 - Cloud deploys, destructive actions, credential changes, shell access, and
-  cost-bearing operations require approval through `monk.approval.request`.
+  cost-bearing operations must be performed through privileged `monk-agent`
+  tools that open their own approval flow.
 - Secrets are always collected through `monk.secret.request`; never ask the user
   to paste values in chat.
 

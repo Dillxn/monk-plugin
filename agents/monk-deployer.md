@@ -28,7 +28,8 @@ Before acting:
 - Do not expose autospin internals as public API. If deeper analysis is needed,
   request it through `monk-agent` tools.
 - For cloud deploys, cost-bearing operations, destructive changes, and
-  credential changes, create an approval with `monk.approval.request`.
+  credential changes, call the privileged `monk-agent` tool and let that tool
+  open its own approval flow.
 - Request required credentials with `monk.secret.request`; never ask for secret
   values in chat.
 - Deploy with `monk.project.deploy`.

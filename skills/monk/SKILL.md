@@ -56,7 +56,6 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.project.analyze`
 - `monk.project.deploy`
 - `monk.secret.request`
-- `monk.approval.request`
 - `monk.workload.status`
 - `monk.analyzer.diagnose`
 - `monk.docs.search`
@@ -73,6 +72,10 @@ tooling only if it is backed by Monk or `monk-agent`. Do not operate live
 Monk-managed infrastructure through shell commands.
 
 ## Safety rules
+
+Approvals are owned by privileged `monk-agent` tools. Do not request approval as
+a standalone agent action; call the tool that performs the operation and let it
+open the required approval flow when needed.
 
 - Never ask the user to paste secrets into chat. Use `monk.secret.request`.
 - Do not run `monk`, cloud CLIs, Terraform, Kubernetes, Docker, or Podman to
