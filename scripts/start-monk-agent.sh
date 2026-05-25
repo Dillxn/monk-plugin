@@ -6,6 +6,7 @@ host="${MONK_AGENT_HOST:-127.0.0.1}"
 auth_url="${MONK_AUTH_URL:-https://auth.monk.io}"
 auth_client_id="${MONK_AGENT_AUTH_CLIENT_ID:-UW84YWcJME3buMSLfqLX8IbBsYdNWi47}"
 auth_audience="${MONK_AUTH_AUDIENCE:-oaknode.com}"
+autospin_url="${MONK_AUTOSPIN_URL:-wss://api.app.monk.io/autospin/}"
 agent_path_env="${PATH:-/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin}"
 case ":$agent_path_env:" in
   *:/opt/homebrew/bin:*) ;;
@@ -79,6 +80,7 @@ launchd_configured() {
     grep -q "<string>$auth_client_id</string>" "$launchd_plist" &&
     grep -q "<string>$auth_url</string>" "$launchd_plist" &&
     grep -q "<string>$auth_audience</string>" "$launchd_plist" &&
+    grep -q "<string>$autospin_url</string>" "$launchd_plist" &&
     grep -q "<string>$agent_path_env</string>" "$launchd_plist"
 }
 
@@ -120,6 +122,8 @@ start_with_launchd() {
     <string>$auth_client_id</string>
     <key>MONK_AUTH_AUDIENCE</key>
     <string>$auth_audience</string>
+    <key>MONK_AUTOSPIN_URL</key>
+    <string>$autospin_url</string>
     <key>PATH</key>
     <string>$agent_path_env</string>
   </dict>
@@ -148,6 +152,7 @@ start_with_background_process() {
   export MONK_AUTH_URL="$auth_url"
   export MONK_AGENT_AUTH_CLIENT_ID="$auth_client_id"
   export MONK_AUTH_AUDIENCE="$auth_audience"
+  export MONK_AUTOSPIN_URL="$autospin_url"
   export PATH="$agent_path_env"
   if command -v setsid >/dev/null 2>&1; then
     setsid "$agent_path" serve --host "$host" --port "$port" >>"$log_file" 2>&1 </dev/null &
