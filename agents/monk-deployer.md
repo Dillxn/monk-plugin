@@ -35,7 +35,10 @@ Before acting:
 - Use `monk.project.configure` when MANIFEST is missing, the application
   topology changed, or the user explicitly asks Monk to configure the project.
   This is the configuration-generation step for MANIFEST and Monk templates.
-  Do not run it just to rebuild images; deploy handles image builds.
+  Do not run it just to rebuild images; deploy handles image builds. If
+  configure returns `deferred: true` with `nextAction:
+  "delegate_to_monk_editor"`, delegate the returned `handoff.task` to
+  `monk-editor`, then rerun analyze/deploy after files are created.
 - Do not expose autospin internals as public API. If deeper analysis is needed,
   request it through `monk-agent` tools.
 - For cloud deploys, cost-bearing operations, destructive changes, and

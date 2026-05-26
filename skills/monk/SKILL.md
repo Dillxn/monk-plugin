@@ -196,7 +196,10 @@ For a first deploy:
 5. If MANIFEST is missing or the project topology changed, run
    `monk.project.configure` with the absolute workspace root. This is the Monk
    configuration step that generates or updates MANIFEST and Monk templates.
-   Do not call it just to rebuild container images for a normal redeploy.
+   Do not call it just to rebuild container images for a normal redeploy. If
+   the result has `deferred: true` and `nextAction:
+   "delegate_to_monk_editor"`, delegate `handoff.task` to the `monk-editor`
+   subagent, then rerun analyze/deploy after the editor creates the files.
 6. If user-provided secrets or provider credentials are required, request them
    through the local secure web form.
 7. If deploying to cloud or making a risky change, request approval.

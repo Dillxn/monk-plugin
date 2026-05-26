@@ -17,7 +17,9 @@ take with Monk, check official docs at `docs.monk.io` and use
    choosing providers or writing configuration.
 8. If MANIFEST is missing or topology changed, call `monk.project.configure`
    with the absolute workspace root. This generates or updates MANIFEST and
-   Monk templates; normal code-only redeploys should skip it.
+   Monk templates; normal code-only redeploys should skip it. If configure
+   returns `deferred: true`, pass `handoff.task` to the `monk-editor` subagent
+   and resume with analyze/deploy after the editor writes the files.
 9. Derive required user-provided secrets from the package plan and MANIFEST.
    MANIFEST `SECRET` lists values the user must supply. Do not list generated
    secrets written by packages/entities; consumers should read generated secret
