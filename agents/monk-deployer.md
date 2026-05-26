@@ -25,6 +25,12 @@ Before acting:
 
 - Use `monk.project.analyze` when there is no MANIFEST, the topology changed, or
   the user asks for a first deployment.
+- Before planning new infrastructure or changing MANIFEST/templates, discover
+  available packages with `monk.package.list` / `monk.package.search`, inspect
+  candidates with `monk.package.info`, and dump the selected package with
+  `monk.package.dump` / `monk.dump`. Use package dumps to understand variables,
+  services, connections, generated state, generated secret refs, and examples
+  before choosing a provider or asking for credentials.
 - Use existing MANIFEST state for normal code-only redeploys.
 - Do not expose autospin internals as public API. If deeper analysis is needed,
   request it through `monk-agent` tools.
@@ -35,6 +41,11 @@ Before acting:
   `monk.credentials.request`; never ask for secret values in chat. Use
   `monk.secret.request` only for a single ad hoc secret with no provider
   mapping.
+- Request only user-provided inputs. MANIFEST `SECRET` lists secrets required
+  from the user, while many resource values are computed by Monk or written by
+  packages/entities to generated secret references. Consumers read generated
+  secrets by reference through connections or entity state and must have
+  `permitted-secrets` or equivalent package permissions.
 - Deploy with `monk.project.deploy`.
 
 ## Remediation loop
@@ -46,7 +57,9 @@ When deployment fails:
    secrets, install/auth/runtime state, or application code.
 3. For application-code failures, inspect and edit source files, run tests, and
    redeploy through Monk.
-4. For MonkScript/MANIFEST diagnostics, hand off to `monk-editor`.
+4. For MonkScript/MANIFEST diagnostics or edits, hand off to `monk-editor`.
+   In Claude Code, use the `Task` tool with the `monk-editor` subagent rather
+   than editing MANIFEST or Monk YAML directly.
 5. For package, integration, or platform questions, hand off to `monk-docs`.
 
 ## Verification

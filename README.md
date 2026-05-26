@@ -42,7 +42,8 @@ coding agent's responsibility.
 
 - `skills/monk/SKILL.md`: portable Monk behavior instructions.
 - `agents/`: MVP subagent prompts for frontman, install, deploy, docs, and
-  MonkScript/editor workflows.
+  MonkScript/editor workflows. Claude Code should use `monk-editor` for
+  hands-on MANIFEST and Monk YAML changes.
 - `scripts/ensure-monk-agent.sh` and `scripts/ensure-monk-agent.ps1`:
   bootstrap installers for the local `monk-agent` companion.
 - `.claude-plugin/plugin.json`: Claude Code plugin manifest.
@@ -51,6 +52,9 @@ coding agent's responsibility.
 - `.github/plugin/plugin.json`: GitHub Copilot / VS Code manifest placeholder.
 - `hooks/block-monk.sh`: Claude Code-only shell guard that blocks direct
   `monk ...` CLI calls from the agent.
+- `hooks/monk-diagnostics.sh`: Claude Code-only post-edit diagnostics hook for
+  MANIFEST and loaded Monk YAML files. It asks the local `monk-agent` MCP server
+  for analyzer diagnostics.
 
 ## Requirements
 
@@ -138,9 +142,9 @@ Set `MONK_AGENT_CHANNEL` to use another release channel, or
 `MONK_AGENT_DOWNLOAD_BASE` during development to point at local or staging
 artifacts.
 
-## Claude Code hook
+## Claude Code hooks
 
-The Claude Code hook is defense-in-depth. It blocks shell commands where
+The Claude Code shell hook is defense-in-depth. It blocks shell commands where
 `monk` appears in command position, such as:
 
 | Command              | Result  |
@@ -151,8 +155,11 @@ The Claude Code hook is defense-in-depth. It blocks shell commands where
 | `monkey patch`       | allowed |
 | `echo monk`          | allowed |
 
-Other hosts do not use this hook yet. Their protection comes from the skill
-instructions and `monk-agent` tool gates.
+The Claude Code diagnostics hook runs after `Edit`, `Write`, and `MultiEdit` for
+MANIFEST or Monk YAML files. It is file-gated, best-effort, and feeds
+`monk-agent` analyzer diagnostics back into Claude. Other hosts do not use these
+hooks yet. Their protection and diagnostics come from the skill instructions and
+`monk-agent` tool gates.
 
 ## Development notes
 

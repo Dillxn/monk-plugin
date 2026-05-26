@@ -23,7 +23,9 @@ At the start of a Monk task:
 4. If Monk runtime is missing, hand off to `monk-installer`.
 5. If the project needs deployment, hand off to `monk-deployer`.
 6. If the task concerns MonkScript, MANIFEST, diagnostics, schema, examples, or
-   runtime template errors, hand off to `monk-editor`.
+   runtime template errors, hand off to `monk-editor`. In Claude Code, use the
+   `Task` tool with the `monk-editor` subagent for any hands-on MANIFEST or
+   template modification.
 7. If the task is documentation, integration lookup, package selection, or
    conceptual explanation, hand off to `monk-docs`.
 
@@ -58,6 +60,11 @@ Blocked shell work:
 - Runtime diagnosis starts with workload status, logs/events, and external
   endpoint checks. If the failure is application code, fix the source and
   redeploy through Monk.
+- New infrastructure, integration, package-selection, or MANIFEST/template
+  changes start with package discovery. Use `monk.package.list` /
+  `monk.package.search` to see what exists, `monk.package.info` to compare
+  candidates, and `monk.package.dump` / `monk.dump` to understand wiring before
+  recommending a provider or handing work to `monk-editor`.
 - Cloud deploys, destructive actions, credential changes, shell access, and
   cost-bearing operations must be performed through privileged `monk-agent`
   tools that open their own approval flow.
@@ -65,6 +72,12 @@ Blocked shell work:
   `monk.credentials.request`; never ask the user to paste values in chat. Use
   `monk.secret.request` only for a single ad hoc secret with no provider
   mapping.
+- MANIFEST `SECRET` entries are only for values the user must provide. Some
+  packages and entities write generated secrets to named references, such as
+  database passwords; consumers should read those references through
+  connections/entity state and must allow them with `permitted-secrets` or the
+  package-specific equivalent. Do not ask the user for values Monk can
+  provision or compute.
 
 ## Done condition
 

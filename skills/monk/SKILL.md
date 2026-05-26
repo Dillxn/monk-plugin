@@ -1,7 +1,7 @@
 ---
 name: monk
 description: "Deploy and operate applications with Monk through the local monk-agent MCP companion. Use when the user wants to install Monk, sign in, analyze a project, deploy locally or to cloud, inspect workloads, provide secrets securely, or troubleshoot Monk-managed infrastructure. MVP hosts are Claude Code, Codex, and Cursor."
-allowed-tools: Bash(*), Read, WebFetch, mcp__monk__monk_auth_status, mcp__monk__monk_auth_start, mcp__monk__monk_install_status, mcp__monk__monk_install_run, mcp__monk__monk_runtime_status, mcp__monk__monk_session_init, mcp__monk__monk_project_analyze, mcp__monk__monk_project_deploy, mcp__monk__monk_cluster_create, mcp__monk__monk_secret_request, mcp__monk__monk_credentials_request, mcp__monk__monk_workload_status, mcp__monk__monk_analyzer_diagnose, mcp__monk__monk_docs_search
+allowed-tools: Bash(*), Read, WebFetch, Task, mcp__monk__monk_auth_status, mcp__monk__monk_auth_start, mcp__monk__monk_install_status, mcp__monk__monk_install_run, mcp__monk__monk_runtime_status, mcp__monk__monk_session_init, mcp__monk__monk_project_analyze, mcp__monk__monk_project_deploy, mcp__monk__monk_cluster_create, mcp__monk__monk_secret_request, mcp__monk__monk_credentials_request, mcp__monk__monk_workload_status, mcp__monk__monk_analyzer_diagnose, mcp__monk__monk_docs_search, mcp__monk__monk_package_list, mcp__monk__monk_package_search, mcp__monk__monk_package_info, mcp__monk__monk_package_dump, mcp__monk__monk_dump, mcp__monk__monk_arrowscript_operator_groups, mcp__monk__monk_arrowscript_operator_list, mcp__monk__monk_arrowscript_operator_search, mcp__monk__monk_arrowscript_operator_doc
 ---
 
 # Using Monk
@@ -62,6 +62,15 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.workload.status`
 - `monk.analyzer.diagnose`
 - `monk.docs.search`
+- `monk.package.list`
+- `monk.package.search`
+- `monk.package.info`
+- `monk.package.dump`
+- `monk.dump` (compatibility alias for package/template dump)
+- `monk.arrowscript.operator.groups`
+- `monk.arrowscript.operator.list`
+- `monk.arrowscript.operator.search`
+- `monk.arrowscript.operator.doc`
 - `monk://agent/status`
 - `monk://workspace/manifest`
 - `monk://workspace/workloads`
@@ -88,13 +97,56 @@ open the required approval flow when needed.
   bypass Monk-managed runtime state.
 - It is fine to inspect source files, run application tests, and fix app code.
 - Generated MANIFEST and MonkScript YAML belong to Monk. Read them for context;
-  coordinate changes through Monk tooling.
+  coordinate changes through Monk tooling. In Claude Code, use the
+  `monk-editor` subagent for MANIFEST or MonkScript edits instead of editing
+  them directly in the main agent.
 - Cloud deploys, destructive actions, workload shells, and credential changes
   require approval through `monk-agent`.
 - Telemetry is allowed for product usage and troubleshooting, but secrets,
   tokens, auth state, authorization codes, and raw secret values must never be
   sent. `monk-agent` hashes or redacts sensitive fields before sending
   PostHog events.
+
+## Infrastructure planning
+
+Before planning MANIFEST, MonkScript, or infrastructure changes, discover what
+Monk can already provide. Query available packages with `monk.package.list` or
+`monk.package.search`, compare candidates with `monk.package.info`, and inspect
+the chosen package with `monk.package.dump` / `monk.dump` before recommending or
+configuring it. Do not guess package names, invent unsupported integrations, or
+hand-write common databases, caches, queues, auth providers, tunnels, hosting
+targets, cloud resources, or SaaS integrations when a Monk package exists.
+
+Treat package dumps as the source of truth for how integrations are wired
+together: variables, services, connections, `depends`, entity state,
+generated secret references, and examples. Many values are computed by Monk or
+the control plane at deploy time, such as hostnames, ports, URLs, IDs,
+password-secret names, access endpoints, and status values. Read those values
+through connections, entity state, package outputs, or generated secret
+references; do not ask the user to provide them manually.
+
+## Secrets model
+
+Secrets have three distinct roles:
+
+- User-provided secrets are values the user must supply, such as API tokens,
+  SaaS credentials, or application-specific keys. List these in the MANIFEST
+  with `SECRET` and collect them through `monk.credentials.request` or, for one
+  ad hoc value, `monk.secret.request`.
+- Generated secrets are written by entities or packages to a secret reference,
+  such as a managed database password. Do not list these in MANIFEST `SECRET`
+  and do not ask the user for them. Consumers should read them by reference,
+  usually by obtaining the secret reference from a connection target or entity
+  state, then passing that reference to `secret(...)` where the package schema
+  expects it.
+- Permission is explicit. Any runnable or entity that reads a secret must allow
+  that secret through `permitted-secrets` or the package-specific equivalent.
+  Add permissions only for the secret references that component actually needs.
+
+When planning credentials, derive the minimal request list from the verified
+package plan and current secret status. Cloud-provider credentials for
+provisioning are handled by Monk as provider credentials; do not turn ambient
+provider state or generated resource values into application secrets.
 
 ## Deployment flow
 
@@ -103,15 +155,26 @@ For a first deploy:
 1. Initialize the session with the absolute workspace root.
 2. Check auth and runtime status.
 3. Ask Monk to analyze the project.
-4. If secrets are required, request them through the local secure web form.
-5. If deploying to cloud or making a risky change, request approval.
-6. Deploy with `monk.project.deploy`.
-7. Verify the returned endpoint/status from outside the deploy operation.
+4. For new infrastructure, query and dump relevant Monk packages before
+   choosing providers or changing MANIFEST/templates.
+5. If user-provided secrets or provider credentials are required, request them
+   through the local secure web form.
+6. If deploying to cloud or making a risky change, request approval.
+7. Deploy with `monk.project.deploy`.
+8. Verify the returned endpoint/status from outside the deploy operation.
 
 For MonkScript, MANIFEST, template diagnostics, or schema/example questions, use
-the editor workflow and call `monk.analyzer.diagnose` / `monk.docs.search` when
-available. If those tools report that analyzer or Chroma support is not wired
-yet, state that clearly and fall back to local files plus official docs.
+the editor workflow. In Claude Code, delegate hands-on MANIFEST and template
+edits to the `monk-editor` subagent. The editor should read
+`monk://workspace/manifest`, call `monk.analyzer.diagnose`, query Chroma-backed
+docs/examples with `monk.docs.search`, browse Monk packages with
+`monk.package.list` / `monk.package.search` / `monk.package.info`, and inspect
+package schemas with `monk.package.dump` / `monk.dump` before changing files.
+For ArrowScript expressions, the editor should use
+`monk.arrowscript.operator.*` tools to verify operators, stack effects,
+arguments, aliases, runtime-only behavior, and deprecations. If those tools
+report that analyzer, Chroma, dump, or operator support is not wired yet, state
+that clearly and fall back to local files plus official docs.
 
 For an existing Monk-built project:
 

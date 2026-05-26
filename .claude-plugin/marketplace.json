@@ -1,16 +1,16 @@
 {
   "name": "monk-plugins",
-  "description": "Monk plugins for deploying and operating applications from Claude Code.",
+  "description": "Monk DevOps Agent plugins for deploying and operating applications from Claude Code.",
   "owner": {
     "name": "MonkOS Inc"
   },
   "plugins": [
     {
       "name": "monk",
-      "displayName": "Monk",
+      "displayName": "Monk DevOps Agent",
       "source": "./",
-      "description": "Deploy and operate full applications with Monk from Claude Code.",
-      "version": "0.1.8",
+      "description": "Deploy and operate full applications with Monk DevOps Agent from Claude Code.",
+      "version": "0.1.9",
       "author": {
         "name": "MonkOS Inc"
       },

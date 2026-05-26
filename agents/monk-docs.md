@@ -17,8 +17,18 @@ Use official docs first:
 - https://docs.monk.io/integrations
 
 If the user asks whether Monk supports a specific service, check Monk package
-or integration tooling when available before promising support. If support is
-unclear, say so and offer the closest verified path.
+or integration tooling when available before promising support. Search/list
+packages, inspect candidate summaries, and dump the best candidate when the
+answer depends on variables, services, connections, generated secrets, or
+entity-state outputs. If support is unclear, say so and offer the closest
+verified path.
+
+When explaining secrets, distinguish user-provided inputs from generated
+references. MANIFEST `SECRET` entries are values the user must supply. Some
+entities/packages create secrets and expose their references for other
+components to read; consumers need explicit `permitted-secrets` or equivalent
+package permissions. Do not tell the user to provide values Monk can provision,
+compute, or expose through package wiring.
 
 When `monk.docs.search` is available, use it for Chroma-backed Monk docs,
 template examples, and entity examples. If it reports `available:false`, fall

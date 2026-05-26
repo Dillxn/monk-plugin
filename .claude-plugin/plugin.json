@@ -1,7 +1,9 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "monk",
-  "description": "Deploy and operate full applications with Monk — cloud infra, SaaS integrations, and containerized workloads — from one chat. Bundles the monk skill and blocks accidental `monk` CLI shell-outs that would desync cluster state.",
-  "version": "0.1.8",
+  "displayName": "Monk DevOps Agent",
+  "description": "Deploy and operate full applications with Monk DevOps Agent — cloud infra, SaaS integrations, and containerized workloads — from one chat. Bundles the monk skill and blocks accidental `monk` CLI shell-outs that would desync cluster state.",
+  "version": "0.1.9",
   "author": {
     "name": "MonkOS Inc"
   },
