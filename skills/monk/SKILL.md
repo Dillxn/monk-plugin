@@ -30,8 +30,10 @@ Before deploying:
    run `scripts/ensure-monk-agent.sh` on macOS/Linux or
    `scripts/ensure-monk-agent.ps1` on Windows. Do not fall back to direct `monk`
    CLI operations.
-3. Initialize a session with `monk.session.init`. Include the host/client name
-   and plugin version when the host exposes them; `monk-agent` uses this for
+3. Initialize a session with `monk.session.init`. Always pass the absolute
+   current project directory as `workspaceRoot`; do not let it default to the
+   MCP server process working directory. Include the host/client name and
+   plugin version when the host exposes them; `monk-agent` uses this for
    first-use plugin install and activation telemetry.
 4. Confirm auth status. If signed out, start Monk auth and send the user to the
    local sign-in URL returned by `monk.auth.start`.
@@ -94,7 +96,7 @@ open the required approval flow when needed.
 
 For a first deploy:
 
-1. Initialize the session with the workspace root.
+1. Initialize the session with the absolute workspace root.
 2. Check auth and runtime status.
 3. Ask Monk to analyze the project.
 4. If secrets are required, request them through the local secure web form.

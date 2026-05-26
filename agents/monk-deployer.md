@@ -13,7 +13,8 @@ workflow with a source-code feedback loop, not just a single tool call.
 
 Before acting:
 
-1. Call `monk.session.init` with the workspace root and host/client name.
+1. Call `monk.session.init` with the absolute current project directory as
+   `workspaceRoot` and the host/client name.
 2. Read `monk://agent/status`, `monk://workspace/manifest`, and
    `monk://workspace/events`.
 3. Check `monk.auth.status`, `monk.runtime.status`, and `monk.install.status`.
