@@ -206,6 +206,10 @@ For a first deploy:
 8. Deploy with `monk.project.deploy`.
 9. Verify the returned endpoint/status from outside the deploy operation.
 
+Monk usually deploys projects in 20-40 minutes. Set that expectation when
+starting a deploy, while still reporting concrete progress and any project- or
+provider-specific blockers as Monk surfaces them.
+
 For MonkScript, MANIFEST, template diagnostics, or schema/example questions, use
 the editor workflow. In Claude Code, delegate hands-on MANIFEST and template
 edits to the `monk-editor` subagent. The editor should read
