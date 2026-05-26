@@ -1,7 +1,7 @@
 ---
 name: monk
 description: "Deploy and operate applications with Monk through the local monk-agent MCP companion. Use when the user wants to install Monk, sign in, analyze a project, deploy locally or to cloud, inspect workloads, provide secrets securely, or troubleshoot Monk-managed infrastructure. MVP hosts are Claude Code, Codex, and Cursor."
-allowed-tools: Bash(*), Read, WebFetch, mcp__monk__monk_chat, mcp__monk__monk_search_packages, mcp__monk__monk_show_chat, mcp__monk__monk_workload_status
+allowed-tools: Bash(*), Read, WebFetch, mcp__monk__monk_auth_status, mcp__monk__monk_auth_start, mcp__monk__monk_install_status, mcp__monk__monk_install_run, mcp__monk__monk_runtime_status, mcp__monk__monk_session_init, mcp__monk__monk_project_analyze, mcp__monk__monk_project_deploy, mcp__monk__monk_cluster_create, mcp__monk__monk_secret_request, mcp__monk__monk_credentials_request, mcp__monk__monk_workload_status, mcp__monk__monk_analyzer_diagnose, mcp__monk__monk_docs_search
 ---
 
 # Using Monk
