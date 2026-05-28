@@ -33,11 +33,16 @@ Before deploying:
    run `scripts/start-monk-agent.sh` on macOS/Linux or
    `scripts/start-monk-agent.ps1` on Windows so the local MCP server is
    installed and started. Do not fall back to direct `monk` CLI operations.
-3. Initialize a session with `monk.session.init`. Always pass the absolute
-   current project directory as `workspaceRoot`; do not let it default to the
-   MCP server process working directory. Include the host/client name and
-   plugin version when the host exposes them; `monk-agent` uses this for
-   first-use plugin install and activation telemetry.
+3. Workspace binding. `monk-agent` learns the active workspace from the MCP
+   `roots` capability when the host advertises it (Claude Code does;
+   capability-aware Codex/Cursor builds do too). When roots are present, no
+   explicit setup is required and you should not call `monk.session.init`
+   defensively. Call `monk.session.init` only when:
+   - the host did not advertise the `roots` capability during initialize, or
+   - you need to override the picked root with a specific absolute path, or
+   - you want to record host/client/plugin-version metadata for telemetry.
+   When you do call it, pass the absolute project directory as `workspaceRoot`.
+   `monk-agent` never falls back to its own working directory.
 4. Confirm auth status. If signed out, start Monk auth and send the user to the
    local sign-in URL returned by `monk.auth.start`.
 5. Confirm runtime status. `monk-agent` requires Monk CLI and `monkd` locally.
