@@ -25,7 +25,9 @@ After `monk-agent` is available, inspect the full `monk.install.status` result:
 - `troubleshootingHints`: likely causes and next diagnostics.
 - `nextAction` and `actions`: recommended remediation.
 
-Use `monk.install.run` only after explicit user or dashboard approval.
+Use `monk.install.run` directly for runtime bring-up actions such as starting
+`monkd` or `monk machine start`. Use explicit user or dashboard approval for
+installation, upgrade, and repair actions.
 
 Claude Code and Codex can also surface native MCP OAuth for Streamable HTTP
 servers. If Monk MCP appears as "needs authentication", use the host-native auth

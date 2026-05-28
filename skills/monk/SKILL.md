@@ -45,8 +45,9 @@ Before deploying:
    platform-specific `humanExplanation`, `relationships`, `components`,
    `checks`, `probes`, `troubleshootingHints`, `nextAction`, and `actions`.
    Explain the current platform's install graph before running remediation.
-   Use `monk.install.run` only after approval, or send the user to the local
-   dashboard install page returned by the host/tooling.
+   Runtime bring-up actions such as starting `monkd` or `monk machine start`
+   may run directly through `monk.install.run`. Installation, upgrade, and
+   repair actions still require explicit user or dashboard approval.
 
 ## Tooling contract
 

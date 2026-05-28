@@ -37,9 +37,10 @@ Use this flow:
 7. Use `probes` as evidence. Quote short command names and statuses, not long
    logs. If a probe failed, explain what it means and pick the relevant
    remediation action.
-8. Use `monk.install.run` for runtime install or repair. Do not execute actions
-   unless the user has approved them or the dashboard form has provided the
-   approval.
+8. Use `monk.install.run` directly for runtime bring-up actions such as
+   starting `monkd` or `monk machine start`. For install, upgrade, or repair
+   actions, do not execute unless the user has approved them or the dashboard
+   form has provided approval.
 9. After installation or remediation, re-check both `monk.install.status` and
    `monk.runtime.status`. Only hand back to deploy once all runtime checks pass.
 
