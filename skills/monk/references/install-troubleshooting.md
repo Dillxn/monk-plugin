@@ -54,11 +54,14 @@ Preferred path:
 
 ```text
 scripts/start-monk-agent.sh
-curl -fsSL https://install.monk.io/install.sh | sh
+monk.install.status
+monk.install.run
 ```
 
-If package-manager setup fails, inspect the error and tell the user whether apt
-or dnf repository setup failed.
+The Linux install action should follow the same package-manager path as the VS
+Code extension: add Monk's signed apt or dnf repository, install the `monk`
+package, write the `monkd` systemd override, reload systemd, and restart
+`monkd`. Do not suggest a one-shot curl-pipe installer URL.
 
 Explain the graph clearly: `monk-agent` runs MCP/dashboard; apt/dnf installs
 Monk; systemd starts and supervises `monkd`.
