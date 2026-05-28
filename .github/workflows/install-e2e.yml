@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -29,6 +31,7 @@ jobs:
         shell: bash
         env:
           MONK_AGENT_INSTALL_DIR: ${{ runner.temp }}/monk-bin
+          MONK_AGENT_CHANNEL: ${{ startsWith(github.ref, 'refs/tags/v') && 'stable' || 'nightly' }}
         run: |
           set -euo pipefail
           installed="$(./scripts/ensure-monk-agent.sh)"
@@ -63,6 +66,7 @@ jobs:
         shell: pwsh
         env:
           MONK_AGENT_INSTALL_DIR: ${{ runner.temp }}\monk-bin
+          MONK_AGENT_CHANNEL: ${{ startsWith(github.ref, 'refs/tags/v') && 'stable' || 'nightly' }}
         run: |
           $installed = .\scripts\ensure-monk-agent.ps1
           if ($installed -ne "$env:MONK_AGENT_INSTALL_DIR\monk-agent.exe") {
