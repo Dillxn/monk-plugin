@@ -8,6 +8,8 @@ auth_client_id="${MONK_AGENT_AUTH_CLIENT_ID:-UW84YWcJME3buMSLfqLX8IbBsYdNWi47}"
 auth_audience="${MONK_AUTH_AUDIENCE:-oaknode.com}"
 autospin_url="${MONK_AUTOSPIN_URL:-wss://api.app.monk.io/autospin/}"
 agent_path_env="${PATH:-/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin}"
+script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+plugin_root="${CLAUDE_PLUGIN_ROOT:-"$(dirname -- "$script_dir")"}"
 case ":$agent_path_env:" in
   *:/opt/homebrew/bin:*) ;;
   *) agent_path_env="/opt/homebrew/bin:$agent_path_env" ;;
@@ -67,7 +69,7 @@ if [ -n "${MONK_AGENT_PATH:-}" ]; then
 elif [ "${MONK_AGENT_SKIP_ENSURE:-0}" = "1" ]; then
   agent_path="$managed_agent_path"
 else
-  agent_path="$("$CLAUDE_PLUGIN_ROOT/scripts/ensure-monk-agent.sh")"
+  agent_path="$("$plugin_root/scripts/ensure-monk-agent.sh")"
 fi
 
 if [ ! -x "$agent_path" ]; then
