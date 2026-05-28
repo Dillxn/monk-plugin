@@ -176,6 +176,38 @@ Set `MONK_AGENT_CHANNEL` to use another release channel, or
 `MONK_AGENT_DOWNLOAD_BASE` during development to point at local or staging
 artifacts.
 
+### Uninstall cleanup
+
+Host plugin uninstall removes the plugin from that host, but hosts do not
+currently run a portable uninstall hook that can remove companion processes and
+runtime packages. Use the bundled cleanup scripts before or after host plugin
+uninstall:
+
+```bash
+./scripts/uninstall-monk-agent.sh --yes
+./scripts/uninstall-monk-agent.sh --runtime --yes
+```
+
+```powershell
+.\scripts\uninstall-monk-agent.ps1 -Yes
+.\scripts\uninstall-monk-agent.ps1 -Runtime -Yes
+# or, from cmd.exe:
+.\scripts\uninstall-monk-agent.cmd -Runtime -Yes
+```
+
+Claude Code also has a guarded maintenance hook for cleanup. It only runs when
+explicitly enabled:
+
+```bash
+MONK_PLUGIN_UNINSTALL=1 MONK_UNINSTALL_RUNTIME=1 claude -p --maintenance
+```
+
+| OS | Installed by plugin bootstrap | Runtime installed by `monk.install.run` | Removed by `uninstall-monk-agent` | Removed with `--runtime` |
+| --- | --- | --- | --- | --- |
+| macOS | `~/.monk/bin/monk-agent`, `~/.monk/bin/monk-agent.sha256`, `~/.monk/agent`, `~/Library/LaunchAgents/io.monk.agent.plist` | Homebrew formula `monk-io/monk/monk`; local Monk machine started by `monk machine start` | Stops launchd/background `monk-agent`, removes launchd plist, removes managed `monk-agent` binary/checksum/temp files, removes `~/.monk/agent` unless `--keep-data` | Runs `monk machine stop`, then uninstalls `monk-io/monk/monk` or `monk` with Homebrew |
+| Linux | `~/.monk/bin/monk-agent`, `~/.monk/bin/monk-agent.sha256`, `~/.monk/agent` | `monk` package from apt/dnf; `monkd` systemd service and override | Stops background `monk-agent` by pid file, removes managed `monk-agent` binary/checksum/temp files, removes `~/.monk/agent` unless `--keep-data` | Stops/disables `monkd`, removes `/etc/systemd/system/monkd.service.d`, reloads systemd, removes `monk` with apt/dnf |
+| Windows | `%USERPROFILE%\.monk\bin\monk-agent.exe`, `%USERPROFILE%\.monk\bin\monk-agent.sha256`, `%USERPROFILE%\.monk\agent` | Preferred `Ubuntu-Monk` WSL distro or selected Ubuntu distro containing Monk CLI/`monkd` | Stops managed `monk-agent.exe` by pid file, removes managed binary/checksum/temp files, removes `%USERPROFILE%\.monk\agent` unless `-KeepData` | Unregisters dedicated `Ubuntu-Monk`; for an existing Ubuntu distro, stops/disables `monkd` and removes the `monk` package inside WSL |
+
 ## Claude Code hooks
 
 The Claude Code shell hook is defense-in-depth. It blocks shell commands where
@@ -194,6 +226,11 @@ MANIFEST or Monk YAML files. It is file-gated, best-effort, and feeds
 `monk-agent` analyzer diagnostics back into Claude. Other hosts do not use these
 hooks yet. Their protection and diagnostics come from the skill instructions and
 `monk-agent` tool gates.
+
+The Claude Code maintenance hook can run the uninstall cleanup script, but only
+when `MONK_PLUGIN_UNINSTALL=1` is set. This is a guarded workaround because
+Claude Code plugin docs document plugin uninstall and plugin data pruning, but
+do not expose a dedicated uninstall hook event.
 
 ## Cluster operations
 

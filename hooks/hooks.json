@@ -1,5 +1,17 @@
 {
   "hooks": {
+    "Setup": [
+      {
+        "matcher": "maintenance",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/uninstall-monk-agent.sh --from-hook --yes",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [
