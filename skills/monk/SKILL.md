@@ -27,9 +27,9 @@ Before deploying:
    - Claude Code: use `/mcp`.
    - Codex CLI: use `codex mcp login monk`.
 2. If they are missing, use the installer workflow. Host install hooks should
-   run `scripts/ensure-monk-agent.sh` on macOS/Linux or
-   `scripts/ensure-monk-agent.ps1` on Windows. Do not fall back to direct `monk`
-   CLI operations.
+   run `scripts/start-monk-agent.sh` on macOS/Linux or
+   `scripts/start-monk-agent.ps1` on Windows so the local MCP server is
+   installed and started. Do not fall back to direct `monk` CLI operations.
 3. Initialize a session with `monk.session.init`. Always pass the absolute
    current project directory as `workspaceRoot`; do not let it default to the
    MCP server process working directory. Include the host/client name and

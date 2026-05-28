@@ -46,6 +46,9 @@ coding agent's responsibility.
   hands-on MANIFEST and Monk YAML changes.
 - `scripts/ensure-monk-agent.sh` and `scripts/ensure-monk-agent.ps1`:
   bootstrap installers for the local `monk-agent` companion.
+- `scripts/start-monk-agent.sh`, `scripts/start-monk-agent.ps1`, and
+  `scripts/start-monk-agent.cmd`: local launchers that install if needed,
+  start `monk-agent`, and wait for the MCP endpoint.
 - `.claude-plugin/plugin.json`: Claude Code plugin manifest.
 - `.codex-plugin/plugin.json`: Codex plugin manifest.
 - `.cursor-plugin/plugin.json`: Cursor plugin manifest.
@@ -59,8 +62,8 @@ coding agent's responsibility.
 ## Requirements
 
 - A host with plugin/skill support: Claude Code, Codex, or Cursor for MVP.
-- `monk-agent` installed locally. Plugin-capable hosts should run the bundled
-  bootstrap script during plugin installation or first activation.
+- `monk-agent` installed and started locally. Plugin-capable hosts should run
+  the bundled start script during plugin installation or first activation.
 - Monk CLI and daemon installed locally, or installable by `monk-agent`.
 - `jq` on `PATH` only for the Claude Code hook.
 
@@ -119,8 +122,8 @@ finishes.
 The intended marketplace flow is:
 
 1. The user installs the Monk plugin through the native host UI or command.
-2. The host runs the bundled `monk-agent` bootstrap script if `monk-agent` is
-   missing.
+2. The host runs the bundled `monk-agent` start script, which bootstraps
+   `monk-agent` if it is missing.
 3. `monk-agent` starts locally, prompts the user to sign up or sign in, and
    exposes runtime install/status tools.
 4. The agent waits while `monk-agent` installs or repairs Monk runtime
@@ -132,6 +135,9 @@ Claude Code integration details:
   `http://127.0.0.1:7419/mcp`.
 - The `SessionStart` hook runs `scripts/start-monk-agent.sh`, which installs
   `monk-agent` if needed and starts it on `127.0.0.1:7419`.
+- On Windows, hosts should run `scripts/start-monk-agent.ps1` or the
+  `scripts/start-monk-agent.cmd` wrapper for the same install/start/health-check
+  behavior.
 - If the MCP server reports that authentication is required, run `/mcp` in
   Claude Code and complete the browser sign-in flow.
 
@@ -139,12 +145,16 @@ Unix bootstrap:
 
 ```bash
 ./scripts/ensure-monk-agent.sh
+./scripts/start-monk-agent.sh
 ```
 
 Windows bootstrap:
 
 ```powershell
 .\scripts\ensure-monk-agent.ps1
+.\scripts\start-monk-agent.ps1
+# or, from cmd.exe:
+.\scripts\start-monk-agent.cmd
 ```
 
 The bootstrap scripts install `monk-agent` to `~/.monk/bin` by default and

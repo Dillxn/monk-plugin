@@ -15,9 +15,9 @@ Use this flow:
    the Monk MCP needs authentication, send the user through the host's MCP auth
    UI first (`/mcp` in Claude Code, `codex mcp login monk` in Codex CLI).
 2. If `monk-agent` is unavailable and the host can run plugin scripts, use the
-   bundled bootstrap script:
-   - macOS/Linux: `scripts/ensure-monk-agent.sh`
-   - Windows: `scripts/ensure-monk-agent.ps1`
+   bundled start script:
+   - macOS/Linux: `scripts/start-monk-agent.sh`
+   - Windows: `scripts/start-monk-agent.ps1`
 3. Check `monk.install.status` and `monk.runtime.status` when available.
 4. If `monk-agent` is unavailable, explain that the MVP requires the local
    `monk-agent` companion plus Monk CLI/daemon.

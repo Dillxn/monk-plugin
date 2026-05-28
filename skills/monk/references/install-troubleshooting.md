@@ -6,12 +6,12 @@ The MVP requires:
 - Monk CLI: `monk`
 - Monk daemon: `monkd`
 
-Use `monk.install.status` first. If unavailable, bootstrap the local
-`monk-agent` companion with the plugin script when the host allows it:
+Use `monk.install.status` first. If unavailable, start the local `monk-agent`
+companion with the plugin script when the host allows it:
 
 ```text
-scripts/ensure-monk-agent.sh
-scripts/ensure-monk-agent.ps1
+scripts/start-monk-agent.sh
+scripts/start-monk-agent.ps1
 ```
 
 After `monk-agent` is available, inspect the full `monk.install.status` result:
@@ -36,7 +36,7 @@ flow first: `/mcp` in Claude Code, or `codex mcp login monk` in Codex CLI.
 Preferred path:
 
 ```text
-scripts/ensure-monk-agent.sh
+scripts/start-monk-agent.sh
 brew install monk-io/monk/monk
 ```
 
@@ -53,7 +53,7 @@ machine` starts local `monkd`.
 Preferred path:
 
 ```text
-scripts/ensure-monk-agent.sh
+scripts/start-monk-agent.sh
 curl -fsSL https://install.monk.io/install.sh | sh
 ```
 
@@ -68,7 +68,7 @@ Monk; systemd starts and supervises `monkd`.
 Preferred path:
 
 ```text
-scripts/ensure-monk-agent.ps1
+scripts/start-monk-agent.ps1
 WSL/Ubuntu-Monk runtime install through monk.install.run
 ```
 

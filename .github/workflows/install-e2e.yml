@@ -99,3 +99,32 @@ jobs:
           if (-not $status.auth.signedIn) {
             throw "expected simulated auth to be signed in"
           }
+
+      - name: Start monk-agent
+        shell: pwsh
+        env:
+          MONK_AGENT_INSTALL_DIR: ${{ runner.temp }}\monk-bin
+          MONK_AGENT_HOME: ${{ runner.temp }}\monk-start-home
+          MONK_AGENT_DEV: "1"
+          MONK_AGENT_SIMULATE_AUTH: "1"
+          MONK_AGENT_MOCK_RUNTIME: "1"
+          MONK_AGENT_VAULT_BACKEND: file
+          MONK_AGENT_STORE: file
+          MONK_AGENT_OPEN_BROWSER: "0"
+          MONK_AGENT_SKIP_ENSURE: "1"
+          MONK_TELEMETRY: "0"
+        run: |
+          .\scripts\start-monk-agent.ps1
+          $pidPath = Join-Path $env:MONK_AGENT_HOME "agent\launcher\run\monk-agent.pid"
+          if (-not (Test-Path $pidPath)) {
+            throw "monk-agent pid file was not created"
+          }
+          $agentPid = [int](Get-Content -Raw $pidPath)
+          try {
+            $metadata = Invoke-WebRequest -Uri "http://127.0.0.1:7419/.well-known/oauth-protected-resource" -UseBasicParsing -TimeoutSec 5
+            if ($metadata.Content -notmatch '"resource"') {
+              throw "monk-agent health metadata did not include resource"
+            }
+          } finally {
+            Stop-Process -Id $agentPid -Force -ErrorAction SilentlyContinue
+          }
