@@ -1,6 +1,6 @@
 {
   "name": "monk",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Deploy and operate full applications with Monk — cloud infra, SaaS integrations, and containerized workloads — from one chat.",
   "author": {
     "name": "MonkOS Inc",
@@ -9,7 +9,13 @@
   "homepage": "https://monk.io",
   "repository": "https://github.com/monk-io/monk-plugin",
   "license": "MIT",
-  "keywords": ["monk", "devops", "deployment", "infrastructure", "mcp"],
+  "keywords": [
+    "monk",
+    "devops",
+    "deployment",
+    "infrastructure",
+    "mcp"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Monk DevOps Agent",
@@ -17,7 +23,11 @@
     "longDescription": "Monk lets coding agents deploy and operate full applications across cloud infrastructure, SaaS integrations, and containerized workloads.",
     "developerName": "MonkOS Inc",
     "category": "Productivity",
-    "capabilities": ["Deployment", "Infrastructure", "Operations"],
+    "capabilities": [
+      "Deployment",
+      "Infrastructure",
+      "Operations"
+    ],
     "websiteURL": "https://monk.io",
     "brandColor": "#6AD3FF",
     "composerIcon": "./assets/monk-logo.svg",

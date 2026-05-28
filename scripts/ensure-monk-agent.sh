@@ -2,7 +2,7 @@
 set -eu
 
 install_dir="${MONK_AGENT_INSTALL_DIR:-"$HOME/.monk/bin"}"
-channel="${MONK_AGENT_CHANNEL:-nightly}"
+channel="${MONK_AGENT_CHANNEL:-stable}"
 download_base="${MONK_AGENT_DOWNLOAD_BASE:-"https://get.monk.io/$channel"}"
 auto_update="${MONK_AGENT_AUTO_UPDATE:-1}"
 target="$install_dir/monk-agent"

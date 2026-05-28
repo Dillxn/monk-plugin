@@ -106,16 +106,17 @@ For local development:
 After installation, restart or reload the host so the skill and MCP discovery
 refresh.
 
-To refresh a local Claude Code development install from sibling working copies:
+To refresh a local Claude Code development install from the private
+`monk-agent` source checkout:
 
 ```sh
-./scripts/dev-update-local.sh
+deno task plugin:local
 ```
 
-This builds `../monk-agent`, installs it to `~/.monk/bin`, restarts the local
-agent, and refreshes Claude's Monk plugin marketplace/cache copies. For
-already-open Claude Code sessions, run `/reload-plugins` after the script
-finishes.
+This builds `monk-agent`, installs it to `~/.monk/bin`, renders this plugin with
+a dev-only version, restarts the local agent, and refreshes Claude's Monk plugin
+marketplace/cache copies. For already-open Claude Code sessions, run
+`/reload-plugins` after the task finishes.
 
 ### monk-agent bootstrap
 
@@ -171,8 +172,8 @@ Windows bootstrap:
 ```
 
 The bootstrap scripts install `monk-agent` to `~/.monk/bin` by default and
-download public, checksummed archives from `https://get.monk.io/nightly`.
-Set `MONK_AGENT_CHANNEL` to use another release channel, or
+download public, checksummed archives from `https://get.monk.io/stable`.
+Set `MONK_AGENT_CHANNEL` to use another release channel such as `nightly`, or
 `MONK_AGENT_DOWNLOAD_BASE` during development to point at local or staging
 artifacts.
 
