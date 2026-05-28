@@ -13,7 +13,9 @@ Use this flow:
 1. Check whether `monk-agent` MCP tools are available. Claude Code and Codex
    can surface native MCP OAuth for Streamable HTTP servers; if the host says
    the Monk MCP needs authentication, send the user through the host's MCP auth
-   UI first (`/mcp` in Claude Code, `codex mcp login monk` in Codex CLI).
+   UI first (`/mcp` in Claude Code, `codex mcp login monk` in Codex CLI, or
+   Cursor's MCP login flow). Cleared host MCP auth should remain logged out
+   until the host sends a fresh bearer token.
 2. If `monk-agent` is unavailable and the host can run plugin scripts, use the
    bundled start script:
    - macOS/Linux: `scripts/start-monk-agent.sh`

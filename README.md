@@ -140,6 +140,19 @@ Claude Code integration details:
   behavior.
 - If the MCP server reports that authentication is required, run `/mcp` in
   Claude Code and complete the browser sign-in flow.
+- Monk MCP rejects requests that do not include a valid bearer token. Clearing
+  MCP authentication in the host should leave the server unauthenticated until
+  the user completes the host OAuth flow again.
+
+Cursor integration details:
+
+- Cursor uses the plugin manifest plus the local `monk-agent` Streamable HTTP
+  MCP endpoint.
+- If Cursor reports that Monk needs login, use Cursor's MCP login flow for the
+  `monk` server.
+- Disabling the server or clearing host-side MCP auth is not a Monk sign-out by
+  itself; after auth is cleared, the MCP endpoint must return `401` until Cursor
+  obtains a new bearer token.
 
 Unix bootstrap:
 

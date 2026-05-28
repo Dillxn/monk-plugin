@@ -26,6 +26,9 @@ Before deploying:
      host auth flow before falling back to `monk.auth.start`.
    - Claude Code: use `/mcp`.
    - Codex CLI: use `codex mcp login monk`.
+   - Cursor: use Cursor's MCP login flow for the `monk` server.
+   - Host-cleared MCP auth should mean no bearer token is sent; in that state,
+     Monk MCP rejects requests until the host completes OAuth again.
 2. If they are missing, use the installer workflow. Host install hooks should
    run `scripts/start-monk-agent.sh` on macOS/Linux or
    `scripts/start-monk-agent.ps1` on Windows so the local MCP server is

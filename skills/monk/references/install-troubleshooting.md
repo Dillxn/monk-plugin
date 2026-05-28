@@ -29,7 +29,9 @@ Use `monk.install.run` only after explicit user or dashboard approval.
 
 Claude Code and Codex can also surface native MCP OAuth for Streamable HTTP
 servers. If Monk MCP appears as "needs authentication", use the host-native auth
-flow first: `/mcp` in Claude Code, or `codex mcp login monk` in Codex CLI.
+flow first: `/mcp` in Claude Code, `codex mcp login monk` in Codex CLI, or
+Cursor's MCP login flow for Cursor. If host-side MCP auth is cleared, Monk MCP
+should reject requests until the host obtains a fresh bearer token.
 
 ## macOS
 
