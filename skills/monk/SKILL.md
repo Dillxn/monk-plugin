@@ -41,8 +41,8 @@ Before deploying:
    - the host did not advertise the `roots` capability during initialize, or
    - you need to override the picked root with a specific absolute path, or
    - you want to record host/client/plugin-version metadata for telemetry.
-   When you do call it, pass the absolute project directory as `workspaceRoot`.
-   `monk-agent` never falls back to its own working directory.
+     When you do call it, pass the absolute project directory as `workspaceRoot`.
+     `monk-agent` never falls back to its own working directory.
 4. Confirm auth status. If signed out, start Monk auth and send the user to the
    local sign-in URL returned by `monk.auth.start`.
 5. Confirm runtime status. `monk-agent` requires Monk CLI and `monkd` locally.
@@ -58,9 +58,9 @@ Before deploying:
 
 Prefer `monk-agent` MCP tools and resources:
 
+- `monk.agent.clear_state` (only when the user explicitly asks to clear local Monk Agent state)
 - `monk.auth.status`
 - `monk.auth.start`
-- `monk.agent.clear_state` (only when the user explicitly asks to clear local Monk Agent state)
 - `monk.install.status`
 - `monk.install.run`
 - `monk.runtime.status`

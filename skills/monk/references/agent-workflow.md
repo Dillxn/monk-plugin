@@ -26,10 +26,10 @@ take with Monk, check official docs at `docs.monk.io` and use
    references through connections/entity state and allow them with
    `permitted-secrets` or the package-specific equivalent.
 10. Request deploy-time provider and MANIFEST credentials through
-   `monk.credentials.request`; use `monk.secret.request` only for a single ad
-   hoc secret with no provider mapping.
+    `monk.credentials.request`; use `monk.secret.request` only for a single ad
+    hoc secret with no provider mapping.
 11. Deploy with `monk.project.deploy`; privileged tools open their own approval
-   flow when needed.
+    flow when needed.
 12. Verify the app or workload externally.
 
 For cluster work, inspect with `monk.cluster.status`, `monk.cluster.peers`,
