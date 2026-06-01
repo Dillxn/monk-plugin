@@ -1,7 +1,7 @@
 ---
 name: monk
 description: "Deploy and operate applications with Monk through the local monk-agent MCP companion. Use when the user wants to install Monk, sign in, analyze a project, deploy locally or to cloud, inspect workloads, provide secrets securely, or troubleshoot Monk-managed infrastructure. MVP hosts are Claude Code, Codex, and Cursor."
-allowed-tools: Bash(*), Read, WebFetch, Task, mcp__monk__monk_agent_clear_state, mcp__monk__monk_auth_status, mcp__monk__monk_auth_start, mcp__monk__monk_install_status, mcp__monk__monk_install_run, mcp__monk__monk_runtime_status, mcp__monk__monk_session_init, mcp__monk__monk_project_analyze, mcp__monk__monk_project_configure, mcp__monk__monk_project_deploy, mcp__monk__monk_cluster_status, mcp__monk__monk_cluster_peers, mcp__monk__monk_cluster_providers, mcp__monk__monk_cluster_create, mcp__monk__monk_cluster_grow, mcp__monk__monk_cluster_shrink, mcp__monk__monk_cluster_peer_remove, mcp__monk__monk_cluster_peer_tag, mcp__monk__monk_cluster_delete, mcp__monk__monk_cluster_exit, mcp__monk__monk_cluster_price, mcp__monk__monk_cluster_registry_status, mcp__monk__monk_cluster_registry_ensure, mcp__monk__monk_cluster_registry_reset, mcp__monk__monk_cluster_forget, mcp__monk__monk_cluster_switch, mcp__monk__monk_cluster_join, mcp__monk__monk_secret_request, mcp__monk__monk_credentials_request, mcp__monk__monk_workload_status, mcp__monk__monk_analyzer_diagnose, mcp__monk__monk_docs_search, mcp__monk__monk_package_list, mcp__monk__monk_package_search, mcp__monk__monk_package_info, mcp__monk__monk_package_dump, mcp__monk__monk_dump, mcp__monk__monk_arrowscript_operator_groups, mcp__monk__monk_arrowscript_operator_list, mcp__monk__monk_arrowscript_operator_search, mcp__monk__monk_arrowscript_operator_doc
+allowed-tools: Bash(*), Read, WebFetch, Task, mcp__monk__monk_agent_clear_state, mcp__monk__monk_auth_status, mcp__monk__monk_auth_start, mcp__monk__monk_install_status, mcp__monk__monk_install_run, mcp__monk__monk_runtime_status, mcp__monk__monk_session_init, mcp__monk__monk_project_analyze, mcp__monk__monk_project_configure, mcp__monk__monk_project_deploy, mcp__monk__monk_cluster_status, mcp__monk__monk_cluster_peers, mcp__monk__monk_cluster_providers, mcp__monk__monk_cluster_create, mcp__monk__monk_cluster_grow, mcp__monk__monk_cluster_shrink, mcp__monk__monk_cluster_peer_remove, mcp__monk__monk_cluster_peer_tag, mcp__monk__monk_cluster_delete, mcp__monk__monk_cluster_exit, mcp__monk__monk_cluster_price, mcp__monk__monk_cluster_registry_status, mcp__monk__monk_cluster_registry_ensure, mcp__monk__monk_cluster_registry_reset, mcp__monk__monk_cluster_forget, mcp__monk__monk_cluster_switch, mcp__monk__monk_cluster_join, mcp__monk__monk_secret_request, mcp__monk__monk_credentials_request, mcp__monk__monk_workload_status, mcp__monk__monk_analyzer_diagnose, mcp__monk__monk_docs_search, mcp__monk__monk_package_list, mcp__monk__monk_package_search, mcp__monk__monk_package_info, mcp__monk__monk_package_dump, mcp__monk__monk_dump, mcp__monk__monk_arrowscript_operator_groups, mcp__monk__monk_arrowscript_operator_list, mcp__monk__monk_arrowscript_operator_search, mcp__monk__monk_arrowscript_operator_doc, mcp__monk__monk_feedback_submit
 ---
 
 # Using Monk
@@ -99,6 +99,7 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.arrowscript.operator.list`
 - `monk.arrowscript.operator.search`
 - `monk.arrowscript.operator.doc`
+- `monk.feedback.submit`
 - `monk://agent/status`
 - `monk://workspace/manifest`
 - `monk://workspace/workloads`
@@ -144,6 +145,23 @@ open the required approval flow when needed.
   sent. `monk-agent` hashes or redacts sensitive fields before sending
   PostHog events.
 
+## Reporting feedback
+
+`monk.feedback.submit` files reports directly to the Monk team's backlog. Use it
+two ways:
+
+- On your own initiative, without being asked, when something clearly warrants
+  it: a Monk command, deploy, or template build fails in a way that looks like a
+  Monk defect (`type: "bug"`); the user needs an integration with no Monk
+  package (`type: "integration"`, set `integration`); or you hit a missing Monk
+  capability (`type: "feature"`). File once per distinct issue.
+- Whenever the user explicitly asks to report a bug or request an integration or
+  feature. Honor the request directly — do not refuse or defer it.
+
+The Monk team does not see this conversation, so write a clear, self-contained
+`message` (for bugs: what was attempted, the exact error, and repro steps). If
+you are unsure whether to file proactively, ask the user first.
+
 ## Infrastructure planning
 
 Before answering questions about what Monk can or cannot do, whether a
@@ -157,7 +175,10 @@ Monk can already provide. Query available packages with `monk.package.list` or
 the chosen package with `monk.package.dump` / `monk.dump` before recommending or
 configuring it. Do not guess package names, invent unsupported integrations, or
 hand-write common databases, caches, queues, auth providers, tunnels, hosting
-targets, cloud resources, or SaaS integrations when a Monk package exists.
+targets, cloud resources, or SaaS integrations when a Monk package exists. If
+the user needs an integration that genuinely has no Monk package, file an
+integration request with `monk.feedback.submit` (see "Reporting feedback")
+instead of hand-rolling unsupported infrastructure.
 
 Based on the current credential definitions, Monk can provision and wire
 provider-backed services for Netlify, Auth0, Redis Cloud, MongoDB Atlas,

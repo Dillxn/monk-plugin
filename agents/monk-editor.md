@@ -144,6 +144,26 @@ do not add a custom ingress controller.
 When secrets or provider credentials are needed, do not invent placeholders
 outside the MANIFEST contract.
 
+Core invariant — every secret has exactly one source, and every reference is
+both permitted and sourced:
+
+- For each `secret("<name>")` reference (or plain secret-ref value) in any
+  template, classify `<name>` as either **user-provided** or
+  **entity-generated**, and wire it accordingly. A reference that is permitted
+  but has no source still fails at deploy time with `Secret "<name>" not found
+  or invalid`, because monk-agent only collects and injects secrets it knows
+  about.
+- **User-provided** (passwords, API keys, SaaS tokens the user must type):
+  MUST be listed in MANIFEST `SECRET` AND permitted on every consuming
+  runnable/entity. The MANIFEST `SECRET` entry is what makes monk-agent prompt
+  the user and inject the value into the runtime — omitting it is the most
+  common cause of a missing-secret deploy failure even when the analyzer is
+  clean.
+- **Entity-generated** (a managed DB password an entity creates, etc.): MUST be
+  permitted on every consuming runnable/entity, but MUST NOT be listed in
+  MANIFEST `SECRET` and MUST NOT be requested from the user. The producing
+  entity is its source.
+
 - MANIFEST `SECRET` lists only values required from the user, such as API keys,
   SaaS tokens, or application-specific secrets.
 - Some packages and entities write secrets to references. For example, a
@@ -172,9 +192,17 @@ Before finishing:
 
 1. Run analyzer diagnostics.
 2. Fix all analyzer errors unless the missing tool surface makes that
-   impossible.
-3. Report any remaining warnings with a reason if they cannot be fixed.
-4. Summarize files changed and why each runtime behavior changed.
+   impossible. A `Secret '<name>' is not permitted` error means a consumer is
+   missing `permitted-secrets`; never silence it by removing the reference.
+3. Cross-check every secret. For each `secret(...)` reference, confirm it is
+   permitted on its consumer AND has a source: user-provided names appear in
+   MANIFEST `SECRET`; entity-generated names are produced by an entity in the
+   graph and are absent from MANIFEST `SECRET`. The analyzer validates
+   permissions but NOT the MANIFEST `SECRET` contract, so verify that part by
+   hand. List each user-provided secret in the summary so `monk-deployer` knows
+   what to collect.
+4. Report any remaining warnings with a reason if they cannot be fixed.
+5. Summarize files changed and why each runtime behavior changed.
 
 ## Handoff
 
