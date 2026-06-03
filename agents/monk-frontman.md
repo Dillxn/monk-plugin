@@ -30,6 +30,15 @@ At the start of a Monk task:
    conceptual explanation, hand off to `monk-docs`.
 
 Use recent events and workload state before asking the user for diagnosis.
+Read `monk://workspace/feed` after host-side MCP timeouts, interrupted approval
+flows, or agent restarts to see durable actions and prompts before retrying an
+operation.
+Read `monk://workspace/cluster-context` before assuming which cluster operations
+target. Monk cluster selection is logical per workspace/session: local mode uses
+local `monkd`, cluster mode uses the selected saved cluster over `monkcode`.
+`monk.cluster.create` automatically selects the newly created cluster on
+success; `monk.cluster.switch` selects another saved cluster; `monk.cluster.exit`
+clears selection and returns to local mode without deleting infrastructure.
 Prefer precise status statements over generic progress commentary.
 Before answering capability questions or estimating how long a Monk task will
 take, consult official docs at `docs.monk.io` through `monk-docs` or
@@ -78,6 +87,9 @@ Blocked shell work:
 - Cloud deploys, destructive actions, credential changes, shell access, and
   cost-bearing operations must be performed through privileged `monk-agent`
   tools that open their own approval flow.
+- If one of those operations times out or the approval state is unclear, read
+  `monk://workspace/feed` first. It is the read-only durable ledger of action
+  and prompt items, including dashboard URLs, and helps avoid duplicate work.
 - Cluster operations are first-class `monk-agent` tools. Use
   `monk.cluster.status` / `peers` / `providers` / `price` for inspection,
   `monk.cluster.create` or `monk.cluster.grow` for capacity,
@@ -86,6 +98,9 @@ Blocked shell work:
   `monk.cluster.peer.tag` for node management, `monk.cluster.exit` for
   returning to local mode, and `monk.cluster.delete` only for explicit
   infrastructure destruction.
+- After `monk.cluster.create` succeeds, continue against the newly selected
+  cluster unless the user asks to switch or exit. Use
+  `monk://workspace/clusters` or `monk.cluster.list` to see saved choices.
 - Deploy-time provider and MANIFEST credentials are collected through
   `monk.credentials.request`; never ask the user to paste values in chat. Use
   `monk.secret.request` only for a single ad hoc secret with no provider

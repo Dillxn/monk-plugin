@@ -187,7 +187,7 @@ case "$os" in
 esac
 
 tries=0
-while [ "$tries" -lt 30 ]; do
+while [ "$tries" -lt 180 ]; do
   if is_running; then
     exit 0
   fi
@@ -195,6 +195,6 @@ while [ "$tries" -lt 30 ]; do
   sleep 1
 done
 
-echo "monk-agent did not become ready at $health_url within 30s." >&2
+echo "monk-agent did not become ready at $health_url within 180s." >&2
 echo "Log: $log_file" >&2
 exit 1

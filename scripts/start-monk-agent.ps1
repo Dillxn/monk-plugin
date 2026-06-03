@@ -136,7 +136,7 @@ $Process = Start-Process `
 
 $Process.Id | Set-Content -NoNewline $PidFile
 
-for ($Attempt = 0; $Attempt -lt 30; $Attempt++) {
+for ($Attempt = 0; $Attempt -lt 180; $Attempt++) {
   if (Test-AgentRunning) {
     exit 0
   }
@@ -146,5 +146,5 @@ for ($Attempt = 0; $Attempt -lt 30; $Attempt++) {
   Start-Sleep -Seconds 1
 }
 
-Write-Error "monk-agent did not become ready at $HealthUrl within 30s. Logs: $LogOut, $LogErr"
+Write-Error "monk-agent did not become ready at $HealthUrl within 180s. Logs: $LogOut, $LogErr"
 exit 1

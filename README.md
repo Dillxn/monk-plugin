@@ -151,7 +151,8 @@ Claude Code integration details:
 - `.mcp.json` registers the plugin-provided `monk` MCP server at
   `http://127.0.0.1:7419/mcp`.
 - The `SessionStart` hook runs `scripts/start-monk-agent.sh`, which installs
-  `monk-agent` if needed and starts it on `127.0.0.1:7419`.
+  `monk-agent` if needed and starts it on `127.0.0.1:7419`. Fresh downloads,
+  extraction, checksum verification, and startup may take up to 180 seconds.
 - On Windows, hosts should run `scripts/start-monk-agent.ps1` or the
   `scripts/start-monk-agent.cmd` wrapper for the same install/start/health-check
   behavior.
@@ -275,6 +276,11 @@ Agents must use `monk-agent` cluster tools for Monk-managed infrastructure:
 
 Risky tools open the local feed approval UI themselves. Agents should not run
 `monk cluster ...` shell commands or ask for separate chat approval first.
+Cluster context is switchable and logical per workspace/session. Read
+`monk://workspace/cluster-context` to see whether operations target local
+`monkd` or a saved cluster via `monkcode`; `monk.cluster.create` selects the new
+cluster on success, `monk.cluster.switch` selects another saved cluster, and
+`monk.cluster.exit` returns to local mode without deleting infrastructure.
 
 ## Development notes
 

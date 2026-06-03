@@ -21,6 +21,14 @@ Before acting:
 4. If signed out, start auth and send the local URL from `monk.auth.start`.
 5. If runtime is missing, hand off to `monk-installer`.
 
+If a previous Monk operation may still be running, timed out at the host layer,
+or left an approval prompt unresolved, read `monk://workspace/feed` before
+starting another privileged operation. The feed is a read-only durable ledger of
+actions and prompts with dashboard URLs.
+Read `monk://workspace/cluster-context` before assuming where Monk operations
+will run. Local mode targets local `monkd`; cluster mode targets the selected
+saved cluster through `monkcode`.
+
 ## Analyze/configure/deploy
 
 - Use `monk.project.analyze` when there is no MANIFEST, the topology changed, or
@@ -62,6 +70,12 @@ Before acting:
   `monk.cluster.price`.
 - Create capacity with `monk.cluster.create` for new clusters and
   `monk.cluster.grow` for existing clusters.
+- `monk.cluster.create` automatically selects the newly created cluster on
+  success. Subsequent Monk RPC/tools/commands should operate in that selected
+  context unless the user asks to switch or exit.
+- Use `monk://workspace/clusters` or `monk.cluster.list` to inspect saved
+  cluster choices, and `monk.cluster.switch` to select a different saved
+  cluster logically.
 - Use `monk.cluster.registry.ensure` when a cluster deploy needs a registry and
   `monk.cluster.registry.reset` only when registry credentials are broken or
   need rotation.
@@ -73,6 +87,9 @@ Before acting:
   explicitly wants to destroy the current cluster.
 - These tools own approval prompts. Call the relevant tool and let
   `monk-agent` open the feed; do not ask for a separate approval first.
+- If a cluster operation times out or the approval state is unclear, inspect
+  `monk://workspace/feed` before calling it again so repeated calls do not
+  create duplicate grow/create/registry work.
 
 ## Remediation loop
 

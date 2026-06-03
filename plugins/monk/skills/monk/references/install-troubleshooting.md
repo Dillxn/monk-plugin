@@ -25,8 +25,9 @@ After `monk-agent` is available, inspect the full `monk.install.status` result:
 - `troubleshootingHints`: likely causes and next diagnostics.
 - `nextAction` and `actions`: recommended remediation.
 
-Use `monk.install.run` directly for runtime bring-up actions such as starting
-`monkd` or `monk machine start`. Use explicit user or dashboard approval for
+`monk.install.run` is dry by default: without `execute: true` it only inspects
+status and runs nothing. Use `execute: true` to run remediation, and pass
+`approved: true` only after explicit user or dashboard approval for
 installation, upgrade, and repair actions.
 
 Claude Code and Codex can also surface native MCP OAuth for Streamable HTTP

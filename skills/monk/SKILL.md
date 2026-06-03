@@ -1,7 +1,7 @@
 ---
 name: monk
 description: "Deploy and operate applications with Monk through the local monk-agent MCP companion. Use when the user wants to install Monk, sign in, analyze a project, deploy locally or to cloud, inspect workloads, provide secrets securely, or troubleshoot Monk-managed infrastructure. MVP hosts are Claude Code, Codex, and Cursor."
-allowed-tools: Bash(*), Read, WebFetch, Task, mcp__monk__monk_agent_clear_state, mcp__monk__monk_auth_status, mcp__monk__monk_auth_start, mcp__monk__monk_install_status, mcp__monk__monk_install_run, mcp__monk__monk_runtime_status, mcp__monk__monk_session_init, mcp__monk__monk_project_analyze, mcp__monk__monk_project_configure, mcp__monk__monk_project_deploy, mcp__monk__monk_cluster_status, mcp__monk__monk_cluster_peers, mcp__monk__monk_cluster_providers, mcp__monk__monk_cluster_create, mcp__monk__monk_cluster_grow, mcp__monk__monk_cluster_shrink, mcp__monk__monk_cluster_peer_remove, mcp__monk__monk_cluster_peer_tag, mcp__monk__monk_cluster_delete, mcp__monk__monk_cluster_exit, mcp__monk__monk_cluster_price, mcp__monk__monk_cluster_registry_status, mcp__monk__monk_cluster_registry_ensure, mcp__monk__monk_cluster_registry_reset, mcp__monk__monk_cluster_forget, mcp__monk__monk_cluster_switch, mcp__monk__monk_cluster_join, mcp__monk__monk_secret_request, mcp__monk__monk_credentials_request, mcp__monk__monk_workload_status, mcp__monk__monk_workload_logs, mcp__monk__monk_workload_stop, mcp__monk__monk_workload_delete, mcp__monk__monk_workload_purge, mcp__monk__monk_workload_unload, mcp__monk__monk_analyzer_diagnose, mcp__monk__monk_docs_search, mcp__monk__monk_package_list, mcp__monk__monk_package_search, mcp__monk__monk_package_info, mcp__monk__monk_package_dump, mcp__monk__monk_dump, mcp__monk__monk_arrowscript_operator_groups, mcp__monk__monk_arrowscript_operator_list, mcp__monk__monk_arrowscript_operator_search, mcp__monk__monk_arrowscript_operator_doc, mcp__monk__monk_feedback_submit
+allowed-tools: Bash(*), Read, WebFetch, Task, mcp__monk__monk_agent_clear_state, mcp__monk__monk_auth_status, mcp__monk__monk_auth_start, mcp__monk__monk_install_status, mcp__monk__monk_install_run, mcp__monk__monk_runtime_status, mcp__monk__monk_session_init, mcp__monk__monk_project_analyze, mcp__monk__monk_project_configure, mcp__monk__monk_project_deploy, mcp__monk__monk_cluster_status, mcp__monk__monk_cluster_peers, mcp__monk__monk_cluster_providers, mcp__monk__monk_cluster_list, mcp__monk__monk_cluster_create, mcp__monk__monk_cluster_grow, mcp__monk__monk_cluster_shrink, mcp__monk__monk_cluster_peer_remove, mcp__monk__monk_cluster_peer_tag, mcp__monk__monk_cluster_delete, mcp__monk__monk_cluster_exit, mcp__monk__monk_cluster_price, mcp__monk__monk_cluster_registry_status, mcp__monk__monk_cluster_registry_ensure, mcp__monk__monk_cluster_registry_reset, mcp__monk__monk_cluster_forget, mcp__monk__monk_cluster_switch, mcp__monk__monk_cluster_join, mcp__monk__monk_secret_request, mcp__monk__monk_credentials_request, mcp__monk__monk_workload_status, mcp__monk__monk_workload_logs, mcp__monk__monk_workload_stop, mcp__monk__monk_workload_delete, mcp__monk__monk_workload_purge, mcp__monk__monk_workload_unload, mcp__monk__monk_analyzer_diagnose, mcp__monk__monk_docs_search, mcp__monk__monk_package_list, mcp__monk__monk_package_search, mcp__monk__monk_package_info, mcp__monk__monk_package_dump, mcp__monk__monk_dump, mcp__monk__monk_arrowscript_operator_groups, mcp__monk__monk_arrowscript_operator_list, mcp__monk__monk_arrowscript_operator_search, mcp__monk__monk_arrowscript_operator_doc, mcp__monk__monk_feedback_submit
 ---
 
 # Using Monk
@@ -50,9 +50,10 @@ Before deploying:
    platform-specific `humanExplanation`, `relationships`, `components`,
    `checks`, `probes`, `troubleshootingHints`, `nextAction`, and `actions`.
    Explain the current platform's install graph before running remediation.
-   Runtime bring-up actions such as starting `monkd` or `monk machine start`
-   may run directly through `monk.install.run`. Installation, upgrade, and
-   repair actions still require explicit user or dashboard approval.
+   `monk.install.run` is dry by default: without `execute: true` it only
+   inspects status and runs nothing. Use `execute: true` to run remediation.
+   Installation, upgrade, and repair actions also require `approved: true`
+   after explicit user or dashboard approval.
 
 ## Tooling contract
 
@@ -71,6 +72,7 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.cluster.status`
 - `monk.cluster.peers`
 - `monk.cluster.providers`
+- `monk.cluster.list`
 - `monk.cluster.create`
 - `monk.cluster.grow`
 - `monk.cluster.shrink`
@@ -82,8 +84,8 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.cluster.registry.status`
 - `monk.cluster.registry.ensure`
 - `monk.cluster.registry.reset`
-- `monk.cluster.forget` (portable saved-cluster store not implemented yet)
-- `monk.cluster.switch` (portable saved-cluster store not implemented yet)
+- `monk.cluster.forget`
+- `monk.cluster.switch`
 - `monk.cluster.join` (portable saved-cluster store not implemented yet)
 - `monk.secret.request`
 - `monk.credentials.request`
@@ -109,6 +111,9 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk://workspace/manifest`
 - `monk://workspace/workloads`
 - `monk://workspace/deploys`
+- `monk://workspace/clusters`
+- `monk://workspace/cluster-context`
+- `monk://workspace/feed`
 - `monk://workspace/events`
 - `monk://workspace/secrets`
 - `monk://workspace/diagnostics`
@@ -116,6 +121,22 @@ Prefer `monk-agent` MCP tools and resources:
 If the host has not exposed these exact names yet, use the available Monk MCP
 tooling only if it is backed by Monk or `monk-agent`. Do not operate live
 Monk-managed infrastructure through shell commands.
+
+Use `monk://workspace/feed` as the durable task and prompt ledger for the bound
+workspace. Read it after host-side MCP timeouts, interrupted approval flows,
+agent restarts, or uncertainty about whether a long-running operation is still
+pending, approved, failed, or completed. It contains durable action and request
+items with dashboard URLs; inspect it before retrying approval-backed or
+cost-bearing operations so repeated calls do not create duplicate work.
+
+Use `monk://workspace/cluster-context` to know the current execution target.
+Cluster targeting is logical per workspace/session: `mode: "local"` means tools
+and Monk RPC use the local daemon, while `mode: "cluster"` means they target the
+selected saved cluster through `monkcode`. `monk.cluster.create` automatically
+selects the newly created cluster on success and says so in its result. Use
+`monk.cluster.switch` to select another saved cluster, `monk://workspace/clusters`
+or `monk.cluster.list` to inspect available choices, and `monk.cluster.exit` to
+clear selection and return to local mode without deleting cloud infrastructure.
 
 ## Safety rules
 
@@ -150,6 +171,11 @@ open the required approval flow when needed.
   changes, exit, and delete must go through `monk.cluster.*` tools. The tools
   open the feed approval prompt when approval is required; do not run the
   equivalent `monk cluster ...` command in a shell.
+- After `monk.cluster.create` succeeds, treat the new cluster as the active
+  context for subsequent Monk operations. Confirm with
+  `monk://workspace/cluster-context` when needed. Do not call a shell-level
+  cluster switch; use `monk.cluster.switch` or `monk.cluster.exit` for logical
+  context changes.
 - If the user asks to reset or clear Monk Agent local state, use
   `monk.agent.clear_state` with `confirm:true`. This deletes local events,
   prompts, actions, credentials, stored auth tokens, sessions, and related
@@ -278,6 +304,9 @@ For an existing Monk-built project:
 
 - Code-only changes usually need deploy, not a full re-analysis.
 - Major architecture changes need analyze/configure before deploy.
+- After a long-running tool times out on the host side, read
+  `monk://workspace/feed` before retrying; the underlying action or approval may
+  still be active in `monk-agent`.
 - Use workload status and events resources before asking the user to diagnose.
 
 ## App code expectations

@@ -39,6 +39,12 @@ For cluster work, inspect with `monk.cluster.status`, `monk.cluster.peers`,
 `monk.cluster.peer.tag`, `monk.cluster.registry.ensure`,
 `monk.cluster.registry.reset`, `monk.cluster.exit`, or
 `monk.cluster.delete`. These tools trigger feed approvals themselves.
+Use `monk://workspace/cluster-context` to understand whether operations target
+local `monkd` or a saved cluster via `monkcode`. `monk.cluster.create`
+automatically selects the created cluster on success. Use
+`monk://workspace/clusters` or `monk.cluster.list` to inspect saved clusters,
+`monk.cluster.switch` to select one logically, and `monk.cluster.exit` to clear
+selection and return to local mode without deleting infrastructure.
 
 For workload lifecycle cleanup, use `monk.workload.status` to inspect first,
 then `monk.workload.stop`, `monk.workload.delete`/`purge`, or
