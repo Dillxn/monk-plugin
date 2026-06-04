@@ -28,6 +28,12 @@ actions and prompts with dashboard URLs.
 Read `monk://workspace/cluster-context` before assuming where Monk operations
 will run. Local mode targets local `monkd`; cluster mode targets the selected
 saved cluster through `monkcode`.
+When the workspace is bound to a Monk scope with a selected environment (check
+`monk.scope.status`), `monk.project.deploy` automatically targets that
+environment's cluster — no manual `monk.cluster.switch` is needed. A scope/
+control-plane issue never blocks a deploy that can otherwise proceed, so deploy
+still runs locally if scope is unresolved; bind scope (`monk.scope.bind`) only
+when you need a specific owner/project/environment target.
 
 ## Analyze/configure/deploy
 

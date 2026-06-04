@@ -32,7 +32,13 @@ take with Monk, check official docs at `docs.monk.io` and use
     flow when needed.
 12. Verify the app or workload externally.
 
-For cluster work, inspect with `monk.cluster.status`, `monk.cluster.peers`,
+For cluster work, first resolve scope: call `monk.scope.status` and, if the
+workspace is `unbound` or `ambiguous`, bind it to an owner/project with
+`monk.scope.bind` (`confirmMove: true` to move an already-bound workspace).
+Mutating cluster operations require a resolved scope; org scope also enforces
+the org's cluster RBAC policy. Optionally pick a target environment with
+`monk.environment.list` / `monk.environment.select`. Then inspect with
+`monk.cluster.status`, `monk.cluster.peers`,
 `monk.cluster.providers`, `monk.cluster.registry.status`, and
 `monk.cluster.price`. Change cluster state only with `monk.cluster.create`,
 `monk.cluster.grow`, `monk.cluster.shrink`, `monk.cluster.peer.remove`,
