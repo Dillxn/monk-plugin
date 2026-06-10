@@ -101,6 +101,18 @@ Blocked shell work:
 - After `monk.cluster.create` succeeds, continue against the newly selected
   cluster unless the user asks to switch or exit. Use
   `monk://workspace/clusters` or `monk.cluster.list` to see saved choices.
+- For cost questions, use `monk.cluster.estimate` to price a node spec before
+  provisioning (cloud cost plus the Monk infra fee) and `monk.org.usage` for
+  what the account is currently spending. Quote estimates as approximate.
+- Per-branch preview environments (Monk Capsules) are set up with
+  `monk.capsule.setup` once the project has a MANIFEST and the workspace is
+  bound to a project. It needs GitHub credentials (via
+  `monk.credentials.request` provider `github`) and, in cloud mode, cloud
+  provider credentials; the user approves the full plan (token mint, GitHub
+  secrets, workflow file) in the dashboard. Use `monk.capsule.list` for
+  capsule status, `monk.capsule.secrets.update` when MANIFEST secrets change
+  (mode `local` for the current capsule, `global` for all future ones), and
+  `monk.capsule.schedule.get`/`update` for up/down schedules.
 - Deploy-time provider and MANIFEST credentials are collected through
   `monk.credentials.request`; never ask the user to paste values in chat. Use
   `monk.secret.request` only for a single ad hoc secret with no provider
