@@ -139,6 +139,12 @@ packages (`cloudflare/cloudflare-tunnel`,
 than ingress routes. For ordinary service exposure, use Monk ingress facilities;
 do not add a custom ingress controller.
 
+For cluster/cloud deployments, expose web-facing services with `ingress-routes`
+so they are served on ports 80/443 with HTTPS and a public domain through the
+cluster ingress (traefik) — `monk.cluster.create` enables the ingress plugin on
+new clusters. Plain `ports` publishing leaves the service on a bare IP:port;
+use it only for local mode, internal services, or overlay-network connections.
+
 ## Secrets and generated values
 
 When secrets or provider credentials are needed, do not invent placeholders

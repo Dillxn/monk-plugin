@@ -34,6 +34,10 @@ environment's cluster — no manual `monk.cluster.switch` is needed. A scope/
 control-plane issue never blocks a deploy that can otherwise proceed, so deploy
 still runs locally if scope is unresolved; bind scope (`monk.scope.bind`) only
 when you need a specific owner/project/environment target.
+When binding for the first time and `monk.scope.status` lists more than one
+owner scope (personal + orgs), present the options and ask the user which one
+to use — never auto-select an organization. Pass `confirmedByUser: true` to
+`monk.scope.bind` only after the user explicitly chose.
 
 ## Analyze/configure/deploy
 
@@ -85,6 +89,11 @@ when you need a specific owner/project/environment target.
 - Use `monk.cluster.registry.ensure` when a cluster deploy needs a registry and
   `monk.cluster.registry.reset` only when registry credentials are broken or
   need rotation.
+- Ingress: `monk.cluster.create` enables the cluster ingress (traefik) plugin,
+  so services declaring `ingress-routes` in their templates are served on
+  80/443 with HTTPS and a public domain. If a deployed web service is only
+  reachable on a bare IP:port, the template is missing `ingress-routes` —
+  delegate the template fix to `monk-editor` instead of bypassing Monk.
 - Use `monk.cluster.shrink`, `monk.cluster.peer.remove`, and
   `monk.cluster.peer.tag` only when the user asks for capacity or placement
   changes, or when deployment remediation clearly requires it.

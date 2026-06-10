@@ -1,7 +1,7 @@
 ---
 name: monk
 description: "Deploy and operate applications with Monk through the local monk-agent MCP companion. Use when the user wants to install Monk, sign in, analyze a project, deploy locally or to cloud, inspect workloads, provide secrets securely, or troubleshoot Monk-managed infrastructure. MVP hosts are Claude Code, Codex, and Cursor."
-allowed-tools: Bash(*), Read, WebFetch, Task, mcp__monk__monk_agent_clear_state, mcp__monk__monk_auth_status, mcp__monk__monk_auth_start, mcp__monk__monk_install_status, mcp__monk__monk_install_run, mcp__monk__monk_runtime_status, mcp__monk__monk_session_init, mcp__monk__monk_scope_status, mcp__monk__monk_scope_bind, mcp__monk__monk_project_analyze, mcp__monk__monk_project_configure, mcp__monk__monk_project_deploy, mcp__monk__monk_environment_list, mcp__monk__monk_environment_select, mcp__monk__monk_cluster_status, mcp__monk__monk_cluster_peers, mcp__monk__monk_cluster_providers, mcp__monk__monk_cluster_list, mcp__monk__monk_cluster_create, mcp__monk__monk_cluster_grow, mcp__monk__monk_cluster_shrink, mcp__monk__monk_cluster_peer_remove, mcp__monk__monk_cluster_peer_tag, mcp__monk__monk_cluster_delete, mcp__monk__monk_cluster_exit, mcp__monk__monk_cluster_price, mcp__monk__monk_cluster_registry_status, mcp__monk__monk_cluster_registry_ensure, mcp__monk__monk_cluster_registry_reset, mcp__monk__monk_cluster_forget, mcp__monk__monk_cluster_switch, mcp__monk__monk_cluster_join, mcp__monk__monk_secret_request, mcp__monk__monk_credentials_request, mcp__monk__monk_workload_status, mcp__monk__monk_workload_logs, mcp__monk__monk_workload_stop, mcp__monk__monk_workload_delete, mcp__monk__monk_workload_purge, mcp__monk__monk_workload_unload, mcp__monk__monk_analyzer_diagnose, mcp__monk__monk_docs_search, mcp__monk__monk_package_list, mcp__monk__monk_package_search, mcp__monk__monk_package_info, mcp__monk__monk_package_dump, mcp__monk__monk_dump, mcp__monk__monk_arrowscript_operator_groups, mcp__monk__monk_arrowscript_operator_list, mcp__monk__monk_arrowscript_operator_search, mcp__monk__monk_arrowscript_operator_doc, mcp__monk__monk_feedback_submit
+allowed-tools: Bash(*), Read, WebFetch, Task, mcp__monk__monk_agent_clear_state, mcp__monk__monk_auth_status, mcp__monk__monk_auth_start, mcp__monk__monk_install_status, mcp__monk__monk_install_run, mcp__monk__monk_runtime_status, mcp__monk__monk_session_init, mcp__monk__monk_scope_status, mcp__monk__monk_scope_bind, mcp__monk__monk_org_usage, mcp__monk__monk_org_billing_alerts_get, mcp__monk__monk_org_billing_alerts_set, mcp__monk__monk_project_analyze, mcp__monk__monk_project_configure, mcp__monk__monk_project_deploy, mcp__monk__monk_environment_list, mcp__monk__monk_environment_select, mcp__monk__monk_cluster_status, mcp__monk__monk_cluster_peers, mcp__monk__monk_cluster_providers, mcp__monk__monk_cluster_list, mcp__monk__monk_cluster_create, mcp__monk__monk_cluster_grow, mcp__monk__monk_cluster_shrink, mcp__monk__monk_cluster_peer_remove, mcp__monk__monk_cluster_peer_tag, mcp__monk__monk_cluster_delete, mcp__monk__monk_cluster_exit, mcp__monk__monk_cluster_price, mcp__monk__monk_cluster_estimate, mcp__monk__monk_cluster_registry_status, mcp__monk__monk_cluster_registry_ensure, mcp__monk__monk_cluster_registry_reset, mcp__monk__monk_cluster_forget, mcp__monk__monk_cluster_switch, mcp__monk__monk_cluster_join, mcp__monk__monk_secret_request, mcp__monk__monk_credentials_request, mcp__monk__monk_workload_status, mcp__monk__monk_workload_logs, mcp__monk__monk_workload_stop, mcp__monk__monk_workload_delete, mcp__monk__monk_workload_purge, mcp__monk__monk_workload_unload, mcp__monk__monk_analyzer_diagnose, mcp__monk__monk_docs_search, mcp__monk__monk_package_list, mcp__monk__monk_package_search, mcp__monk__monk_package_info, mcp__monk__monk_package_dump, mcp__monk__monk_dump, mcp__monk__monk_arrowscript_operator_groups, mcp__monk__monk_arrowscript_operator_list, mcp__monk__monk_arrowscript_operator_search, mcp__monk__monk_arrowscript_operator_doc, mcp__monk__monk_feedback_submit
 ---
 
 # Using Monk
@@ -68,6 +68,9 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.session.init`
 - `monk.scope.status`
 - `monk.scope.bind`
+- `monk.org.usage`
+- `monk.org.billing_alerts.get`
+- `monk.org.billing_alerts.set`
 - `monk.project.analyze`
 - `monk.project.configure`
 - `monk.project.deploy`
@@ -85,6 +88,7 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.cluster.delete`
 - `monk.cluster.exit`
 - `monk.cluster.price`
+- `monk.cluster.estimate`
 - `monk.cluster.registry.status`
 - `monk.cluster.registry.ensure`
 - `monk.cluster.registry.reset`
@@ -158,7 +162,10 @@ run.
     root.
   - `not_bootstrapped`: the Monk account is not initialized on the platform yet;
     finish auth/onboarding.
-  - `unbound`: bind the workspace with `monk.scope.bind`.
+  - `unbound`: bind the workspace with `monk.scope.bind`. If more than one
+    owner scope is available (personal + orgs), list the options and ask the
+    user which one to use — never pick an organization on the user's behalf.
+    Pass `confirmedByUser: true` only after they chose.
   - `ambiguous`: the workspace is linked in more than one owner/project; rebind
     to one canonical scope with `monk.scope.bind` and `confirmMove: true`.
   - `resolved`: proceed.
@@ -167,6 +174,9 @@ run.
   `orgSlug`; optionally `projectSlug`, `createProject: true` to create a missing
   project, and `confirmMove: true` to move an already-bound workspace. Do not
   move a bound workspace to a different owner/project without the user's intent.
+  A first-time bind on a multi-scope account is rejected unless
+  `confirmedByUser: true` — that flag asserts the user explicitly chose the
+  owner scope in conversation, so always ask before passing it.
 - Select a deployment environment with `monk.environment.list` and
   `monk.environment.select`. A resolved environment determines the default
   cluster and the `monk.project.deploy` target, so once scope and environment
