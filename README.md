@@ -282,20 +282,7 @@ Cluster context is switchable and logical per workspace/session. Read
 cluster on success, `monk.cluster.switch` selects another saved cluster, and
 `monk.cluster.exit` returns to local mode without deleting infrastructure.
 
-## Development notes
-
-The MVP runtime is in `/Users/nooga/monk/monk-agent`.
-
-Useful sibling checkouts:
-
-- `/Users/nooga/monk/monk-agent`: local MCP/dashboard runtime.
-- `/Users/nooga/monk/monk-ts2`: `@monk-io/monk` TypeScript client for local
-  `monkd` communication.
-- `/Users/nooga/monk/autospin`: hosted project analysis/build/deploy logic.
-- `/Users/nooga/monk/vscode-monk`: existing IDE product to mine for frontman
-  behavior, specialist agent routing, auth, install, onboarding, analytics,
-  analyzer, and tool-gate behavior.
-
 ## License
 
-MIT
+Proprietary. The source is visible for distribution and integration review, but
+no open-source license is granted.
