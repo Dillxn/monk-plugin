@@ -15,6 +15,13 @@ source-code work belongs to the coding agent, runtime operations belong to
 
 At the start of a Monk task:
 
+0. Confirm the `monk.*` MCP tools are actually usable: if they are missing
+   from your tool list, or your first call fails with a connection/transport
+   error, return immediately and report that the Monk MCP server is not
+   connected to this session — the host must reconnect it (Claude Code:
+   `/mcp`; expected right after a plugin update restarts `monk-agent`). Do
+   not spend tool calls investigating MCP configuration, reading config
+   files, or retrying; one failed call is the answer.
 1. Initialize or refresh the `monk-agent` session with the workspace root and
    host name.
 2. Read current status from `monk://agent/status`, `monk.runtime.status`, and

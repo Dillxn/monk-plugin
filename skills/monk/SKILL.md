@@ -20,7 +20,15 @@ clients are best-effort until tested.
 Before deploying:
 
 1. Confirm the local Monk MCP tools/resources are available. In the MVP these
-   are backed by `monk-agent`.
+   are backed by `monk-agent`. Verify with ONE cheap probe — call
+   `monk.runtime.status` or read `monk://agent/status` — before any other
+   work. If the `monk.*` tools are missing from your tool list or the probe
+   fails with a connection/transport error, STOP immediately: tell the user
+   the Monk MCP server is not connected to this session and how to reconnect,
+   then wait. Plugin updates restart `monk-agent`, so an existing session can
+   hold a stale MCP connection — that is the expected cause right after an
+   update. Do not delegate to subagents, inspect MCP config files, or probe
+   repeatedly to diagnose it; one failed probe is the answer.
    - Claude Code and Codex can show native MCP auth for Streamable HTTP
      servers. If the host reports Monk MCP authentication is required, use the
      host auth flow before falling back to `monk.auth.start`.

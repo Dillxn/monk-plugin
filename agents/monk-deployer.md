@@ -98,6 +98,13 @@ to use — never auto-select an organization. Pass `confirmedByUser: true` to
   80/443 with HTTPS and a public domain. If a deployed web service is only
   reachable on a bare IP:port, the template is missing `ingress-routes` —
   delegate the template fix to `monk-editor` instead of bypassing Monk.
+- If the create flow reports the ingress plugin could not be enabled, do NOT
+  work around it: keep `ingress-routes` in the templates (never rewrite them
+  to plain `ports`), and never reach for cloud provider CLIs or dashboards
+  (doctl, aws, gcloud, firewall rules) to expose ports — that leaves the app
+  on a bare IP:port without HTTPS or a domain. The enable typically succeeds once
+  the cluster's system templates finish syncing: surface the pending state to
+  the user, retry enabling ingress, and verify the routes serve on 80/443.
 - Use `monk.cluster.shrink`, `monk.cluster.peer.remove`, and
   `monk.cluster.peer.tag` only when the user asks for capacity or placement
   changes, or when deployment remediation clearly requires it.
