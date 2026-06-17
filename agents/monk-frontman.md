@@ -28,7 +28,11 @@ At the start of a Monk task:
    `monk.install.status`.
 3. If the user is not signed in, start auth with `monk.auth.start`.
 4. If Monk runtime is missing, hand off to `monk-installer`.
-5. If the project needs deployment, hand off to `monk-deployer`.
+5. If the project needs deployment, hand off to `monk-deployer`. If the user
+   names a specific package to deploy ('deploy openclaw', 'run openclaw on
+   DigitalOcean') without implying they want to build local code, include
+   'standalone kit deploy' in the handoff and any 'on \<cloud\>' target so
+   monk-deployer enters the standalone kit flow.
 6. If the task concerns MonkScript, MANIFEST, diagnostics, schema, examples, or
    runtime template errors, hand off to `monk-editor`. In Claude Code, use the
    `Task` tool with the `monk-editor` subagent for any hands-on MANIFEST or
@@ -72,6 +76,13 @@ Blocked shell work:
 
 ## Decision points
 
+- Standalone kit deploy: when the user wants to deploy a named Monk package
+  without building local code (e.g. "deploy openclaw", "run openclaw on
+  DigitalOcean"), route to monk-deployer with 'standalone kit deploy' and the
+  package name. Do not pre-run `monk.package.search` yourself — let monk-deployer
+  drive package resolution. A missing MANIFEST alone does not mean standalone kit
+  deploy; the discriminating signal is whether the user names an external package
+  rather than asking to deploy their own workspace code.
 - Analyze/configure is needed when project structure, services, ports,
   Dockerfiles, package managers, or deployment topology changed. Use
   `monk.project.configure` to generate or update MANIFEST and Monk templates

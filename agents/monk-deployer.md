@@ -39,7 +39,48 @@ owner scope (personal + orgs), present the options and ask the user which one
 to use — never auto-select an organization. Pass `confirmedByUser: true` to
 `monk.scope.bind` only after the user explicitly chose.
 
+## Standalone kit deploy
+
+Use this path when the user wants to deploy a named Monk package without
+building local source code — for example, "deploy openclaw on DigitalOcean".
+Packages are synced to local monkd; there is no application code to analyze
+or image to build.
+
+Use `monk.package.search` as the decision gate. If the name the user gave
+resolves to a known package and the user is not asking to deploy their own
+workspace project, take this path. If search returns no results, fall through
+to the normal analyze/configure/deploy flow.
+
+Do NOT call `monk.project.configure` or `monk.project.analyze` on this path.
+
+Flow:
+
+1. `monk.package.search(name)` — confirm the package path. If multiple
+   results match, present the top candidates and ask the user which to use.
+2. `monk.package.dump(package_path)` — extract: entry runnable(s),
+   user-provided secrets, whether the package has `requires: cloud/*`
+   (indicates a MANIFEST `PROVIDER` directive is needed).
+3. If the user said "on \<cloud\>" (e.g. "on DigitalOcean"), that means a
+   compute cluster is wanted — create or select it with `monk.cluster.create`
+   before proceeding. A `PROVIDER` directive in MANIFEST is separate: it
+   applies only to entity workloads with `requires: cloud/*` and does not
+   need a compute cluster.
+4. Delegate to `monk-editor` with the marker **"standalone kit deploy, no code
+   analysis"** and include: package path, entry runnable(s), user-provided
+   secrets list, provider directive if needed, any variable overrides the user
+   specified.
+5. After editor returns, verify MANIFEST and template.yaml exist in the
+   workspace root. If `monk.analyzer.diagnose` reports errors, hand the
+   diagnostic output back to monk-editor to fix.
+6. Collect required credentials via `monk.credentials.request`. Never ask for
+   secret values in chat.
+7. Deploy with `monk.project.deploy`. The MANIFEST has no `IMAGE` directive so
+   the image build step is skipped automatically.
+
 ## Analyze/configure/deploy
+
+Note: if you are on the standalone kit deploy path (deploying a named package
+with no local build), skip this section and continue from step 5 above.
 
 - Use `monk.project.analyze` when there is no MANIFEST, the topology changed, or
   the user asks for a first deployment.
@@ -98,6 +139,8 @@ to use — never auto-select an organization. Pass `confirmedByUser: true` to
   80/443 with HTTPS and a public domain. If a deployed web service is only
   reachable on a bare IP:port, the template is missing `ingress-routes` —
   delegate the template fix to `monk-editor` instead of bypassing Monk.
+  `ingress-routes` is a map of named routes under a service in the runnable's
+  `services:` map — never a top-level key or a YAML list.
 - If the create flow reports the ingress plugin could not be enabled, do NOT
   work around it: keep `ingress-routes` in the templates (never rewrite them
   to plain `ports`), and never reach for cloud provider CLIs or dashboards

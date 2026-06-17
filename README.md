@@ -2,7 +2,7 @@
 
 Deploy and operate full applications with [Monk](https://monk.io) — cloud
 infrastructure, SaaS integrations, and containerized workloads — directly from
-Claude Code, Cursor, and OpenAI Codex.
+Claude Code, Cursor, OpenAI Codex, and Google Antigravity.
 
 A Monk account is required: [create one at monk.io](https://monk.io). The
 plugin opens a browser sign-in on first use.
@@ -38,10 +38,32 @@ codex marketplace add monk-io/monk-plugin
 Then start `codex`, run `/plugins`, open the `monk-plugins` marketplace, and
 install Monk.
 
+### Google Antigravity
+
+Clone or download this repository, then copy the `.antigravity-plugin` directory
+to one of:
+
+- **Workspace** (this project only): `.agents/plugins/monk/`
+- **Global** (all workspaces): `~/.gemini/config/plugins/monk/`
+
+```bash
+cp -r .antigravity-plugin/ ~/.gemini/config/plugins/monk
+~/.gemini/config/plugins/monk/scripts/start-monk-agent.sh
+```
+
+The second command is a one-time setup step that installs `monk-agent`, starts
+it, and registers it in `~/.gemini/config/mcp_config.json` (Antigravity reads
+MCP servers from the global config, not from the plugin directory). After that,
+`monk-agent` starts automatically via the `PreInvocation` hook at the start of
+each Antigravity conversation. To authenticate with Monk, open a project in
+Antigravity, then go to **Agent Settings → Customizations → Authenticate** next
+to the `monk` server and complete the browser sign-in.
+
 After installation, restart or reload the host so the skill and MCP server are
 picked up. If the `monk` MCP server reports that authentication is required,
 complete the browser sign-in flow: `/mcp` in Claude Code,
-`codex mcp login monk` in Codex, or Cursor's MCP login for the `monk` server.
+`codex mcp login monk` in Codex, Cursor's MCP login for the `monk` server, or
+**Agent Settings → Customizations → Authenticate** in Antigravity.
 
 ## Basic usage
 

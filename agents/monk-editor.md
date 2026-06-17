@@ -69,6 +69,62 @@ You are a normal subagent with file-editing tools plus Monk MCP context tools:
 - Symbols: when symbol listing is exposed, use it to verify runnable, entity,
   connection, service, and variable names rather than guessing.
 
+## Standalone kit template
+
+When the task includes the marker "standalone kit deploy, no code analysis",
+the user is deploying a named Monk package without building local source code.
+
+On this path:
+
+- Do NOT call `monk.project.analyze` and do NOT read local source files for
+  deployment context (there may be no application code at all).
+- DO call `monk.package.dump` on the package path to verify secret names,
+  variable defaults, service structure, and any dependencies before writing YAML.
+- DO call `monk.analyzer.diagnose` after writing files — this validates the YAML,
+  not the local project code.
+
+Template structure follows normal conventions. The only differences from a local
+project deploy are:
+
+- No `IMAGE` directive in MANIFEST (the package provides its own image;
+  `monk.project.deploy` skips the image build step automatically when `IMAGE` is
+  absent).
+- Use the workspace namespace (from `monk://workspace/scope` or the workspace
+  directory name) as the local namespace in template.yaml. The package path
+  appears only in `inherits:`, not as the namespace.
+- MANIFEST ENTRY is `<workspace-namespace>/<runnable-name>`.
+- Stack, process-group, and dependency entries are valid if the package dump
+  reveals the package has dependencies that need wiring — follow the same
+  patterns as a normal template.
+
+Example — workspace namespace `my-project`, package `openclaw/openclaw`:
+
+```
+REPO my-project
+LOAD template.yaml
+ENTRY my-project/openclaw
+SECRET OPENCLAW_API_KEY     # omit if package needs no user-provided secrets
+PROVIDER do                 # only for entity workloads with requires: cloud/*
+```
+
+```yaml
+namespace: my-project
+
+openclaw:
+  defines: runnable
+  inherits: openclaw/openclaw
+  # variables: block only if user specified non-default overrides
+```
+
+Secret classification invariant applies here the same as everywhere: secrets the
+user must supply go in MANIFEST SECRET and require `permitted-secrets` on the
+consumer; entity-generated secrets (managed passwords, etc.) must NOT appear in
+MANIFEST SECRET — consumers read them through connections/entity state using
+`permitted-secrets`.
+
+Return a summary: files written, MANIFEST ENTRY value, list of user-provided
+secrets (for monk-deployer to collect), any unresolved warnings.
+
 ## MANIFEST rules
 
 The MANIFEST is line-based config at project root. Directives are
@@ -155,8 +211,11 @@ new clusters. Plain `ports`/`host-port` publishing leaves the service on a bare
 IP:port (typically firewalled, no HTTPS, no domain); use it only for local
 mode, internal services, or overlay-network connections.
 
-`ingress-routes` is declared on the service itself; the service keeps its
-internal `port` and needs no `host-port`:
+`ingress-routes` is a MAP of named routes declared on a service inside the
+runnable's `services:` map (alongside that service's `container`/`port`/
+`protocol`); the service keeps its internal `port` and needs no `host-port`. It
+is never a top-level key on the runnable, and never a YAML list — each route is a
+named map entry (e.g. `web:`), not a `- path:`/`port:` list item:
 
 ```yaml
 services:
@@ -167,6 +226,16 @@ services:
     ingress-routes:
       web:
         path-prefix: /
+```
+
+Do NOT emit the list form below — it is invalid and the analyzer/deploy will
+reject it:
+
+```yaml
+# WRONG: top-level key, and a list of routes
+ingress-routes:
+  - path: /
+    port: 3001
 ```
 
 Routes support options like `path-prefix` and `path-rewrite`
