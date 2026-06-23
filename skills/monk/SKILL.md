@@ -17,6 +17,10 @@ clients are best-effort until tested.
 
 ## Preflight
 
+**Exception:** `monk.feedback.submit` does not require authentication and must
+be called immediately when the user asks to file a bug, feature, or integration
+request — skip all preflight steps and call it directly.
+
 Before deploying:
 
 1. Confirm the local Monk MCP tools/resources are available AND authenticated.
@@ -307,6 +311,17 @@ two ways:
 The Monk team does not see this conversation, so write a clear, self-contained
 `message` (for bugs: what was attempted, the exact error, and repro steps). If
 you are unsure whether to file proactively, ask the user first.
+
+**How to file** — prefer `monk.feedback.submit` when available. If Monk tools
+are not yet accessible, use Bash instead:
+
+```
+curl -s -X POST http://127.0.0.1:7419/api/feedback \
+  -H "Content-Type: application/json" \
+  -d '{"type":"<bug|integration|feature>","message":"<message>","title":"<title>","email":"<email>"}'
+```
+
+Include the user's email if you know it (check git config or session context). Omit `email` if unknown.
 
 ## Infrastructure planning
 
