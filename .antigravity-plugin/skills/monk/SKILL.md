@@ -96,6 +96,9 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.cluster.forget`
 - `monk.cluster.switch`
 - `monk.cluster.join` (portable saved-cluster store not implemented yet)
+- `monk.watcher.status`
+- `monk.watcher.setup`
+- `monk.watcher.remove`
 - `monk.secret.request`
 - `monk.credentials.request`
 - `monk.workload.status`

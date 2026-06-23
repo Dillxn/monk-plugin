@@ -122,6 +122,13 @@ Blocked shell work:
 - For cost questions, use `monk.cluster.estimate` to price a node spec before
   provisioning (cloud cost plus the Monk infra fee) and `monk.org.usage` for
   what the account is currently spending. Quote estimates as approximate.
+- For monitoring/alerting requests, use `monk.watcher.setup` — it deploys
+  Monk's built-in watcher (crash detection, resource alerts, AI-refined Slack
+  notifications) on the active cluster's system-tagged peer. All thresholds
+  have sane defaults; only pass overrides the user asked for. Slack alerts
+  need stored slack credentials (`monk.credentials.request` provider
+  `slack`). Check `monk.watcher.status` before suggesting setup, and use
+  `monk.watcher.remove` only on explicit request.
 - Per-branch preview environments (Monk Capsules) are set up with
   `monk.capsule.setup` once the project has a MANIFEST and the workspace is
   bound to a project. It needs GitHub credentials (via
