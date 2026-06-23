@@ -160,6 +160,19 @@ with no local build), skip this section and continue from step 5 above.
   `monk://workspace/feed` before calling it again so repeated calls do not
   create duplicate grow/create/registry work.
 
+## Workload removal
+
+When the user asks to remove, delete, or clean up a workload — including
+superseded workloads left behind after an inheritance-based redeploy:
+
+- Use `monk.workload.delete` or `monk.workload.purge`. These stop and remove
+  the container/runnable state; no separate `monk.workload.stop` call is needed
+  first.
+- Only call `monk.workload.unload` afterward if the template was loaded from
+  the workspace MANIFEST. For external package workloads (e.g. `monk/vaultwarden`
+  or any runnable not defined in the workspace), skip `unload` — it is not
+  loaded locally and unloading is a no-op or an error.
+
 ## Remediation loop
 
 When deployment fails:

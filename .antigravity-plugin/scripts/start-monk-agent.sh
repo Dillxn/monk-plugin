@@ -68,6 +68,47 @@ register_antigravity_mcp() {
   fi
 }
 
+# If the agent is up but the user is not signed in to Monk, print SessionStart
+# context telling the host agent to prompt the user to sign in via /mcp. Without
+# this the host only sees "tools unavailable" and mis-reports it as a connection
+# problem instead of an auth one. Best-effort; never blocks session start.
+emit_signin_nudge() {
+  status_url="http://$host:$port/status.json"
+  body=""
+  # status.json aggregates runtime/auth state and routinely takes ~3s on a cold,
+  # signed-out agent — the exact state this nudge targets. A short timeout here
+  # silently swallows the nudge, so give it real headroom.
+  if command -v curl >/dev/null 2>&1; then
+    body="$(curl -fsS --max-time 10 "$status_url" 2>/dev/null || true)"
+  elif command -v wget >/dev/null 2>&1; then
+    body="$(wget -q -T 10 -O - "$status_url" 2>/dev/null || true)"
+  fi
+  [ -n "$body" ] || return 0
+  # Compact JSON from app.status(); signed-in users get no nudge.
+  case "$body" in
+    *'"signedIn":true'*) return 0 ;;
+  esac
+  client="unknown"
+  if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+    client="claude-code"
+  elif [ -n "${PLUGIN_ROOT:-}" ]; then
+    client="codex"
+  fi
+  nudge_url="http://$host:$port/plugin/nudge?type=signin&client=$client"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsS --max-time 2 -X POST "$nudge_url" >/dev/null 2>&1 || true
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q -T 2 -O - --post-data="" "$nudge_url" >/dev/null 2>&1 || true
+  fi
+  msg="monk-agent is running but you are NOT signed in to Monk. The Monk MCP tools require sign-in. If the user asks to deploy, analyze, or operate anything with Monk, first tell them to run /mcp and authenticate the monk MCP server (this signs them in to Monk). Do NOT describe this as a connection or restart problem, and do NOT deploy via Docker or another platform to work around it."
+  if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && command -v jq >/dev/null 2>&1; then
+    jq -n --arg ctx "$msg" \
+      '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $ctx}}'
+  else
+    printf '%s\n' "$msg"
+  fi
+}
+
 is_running() {
   if command -v curl >/dev/null 2>&1; then
     curl -fsS --max-time 2 "$health_url" 2>/dev/null | grep -q '"resource"'
@@ -133,11 +174,13 @@ launchd_configured() {
 if [ "${MONK_AGENT_SKIP_ENSURE:-0}" != "1" ]; then
   if [ "$os" != "Darwin" ] && [ "$agent_updated" = "0" ] && is_running; then
     register_antigravity_mcp
+    emit_signin_nudge
     exit 0
   fi
 
   if [ "$os" = "Darwin" ] && [ "$agent_updated" = "0" ] && is_running && launchd_configured; then
     register_antigravity_mcp
+    emit_signin_nudge
     exit 0
   fi
 fi
@@ -227,6 +270,7 @@ tries=0
 while [ "$tries" -lt 180 ]; do
   if is_running; then
     register_antigravity_mcp
+    emit_signin_nudge
     exit 0
   fi
   tries=$((tries + 1))

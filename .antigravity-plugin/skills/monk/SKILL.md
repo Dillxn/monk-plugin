@@ -53,6 +53,7 @@ Before deploying:
 Prefer `monk-agent` MCP tools and resources:
 
 - `monk.agent.clear_state` (only when the user explicitly asks to clear local Monk Agent state)
+- `monk.agent.clear_history` (tidy completed dashboard tasks and resolved approvals; leaves live work and credentials intact)
 - `monk.auth.status`
 - `monk.auth.start`
 - `monk.install.status`

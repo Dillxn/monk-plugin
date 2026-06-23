@@ -31,6 +31,36 @@ function Test-AgentRunning {
   }
 }
 
+# If the agent is up but the user is not signed in to Monk, print SessionStart
+# context telling the host agent to prompt the user to sign in via /mcp. Without
+# this the host only sees "tools unavailable" and mis-reports it as a connection
+# problem instead of an auth one. Best-effort; never blocks session start.
+function Show-SigninNudge {
+  $StatusUrl = "http://${AgentHost}:$Port/status.json"
+  try {
+    # status.json aggregates runtime/auth state and routinely takes ~3s on a
+    # cold, signed-out agent — the exact state this nudge targets. A short
+    # timeout here silently swallows the nudge, so give it real headroom.
+    $Status = Invoke-RestMethod -Uri $StatusUrl -TimeoutSec 10
+  } catch {
+    return
+  }
+  if ($Status.auth -and $Status.auth.signedIn) {
+    return
+  }
+  $Client = if ($env:CLAUDE_PLUGIN_ROOT) { "claude-code" } elseif ($env:PLUGIN_ROOT) { "codex" } else { "unknown" }
+  try {
+    Invoke-RestMethod -Uri "http://${AgentHost}:$Port/plugin/nudge?type=signin&client=$Client" -Method Post -TimeoutSec 2 | Out-Null
+  } catch {
+  }
+  $Msg = "monk-agent is running but you are NOT signed in to Monk. The Monk MCP tools require sign-in. If the user asks to deploy, analyze, or operate anything with Monk, first tell them to run /mcp and authenticate the monk MCP server (this signs them in to Monk). Do NOT describe this as a connection or restart problem, and do NOT deploy via Docker or another platform to work around it."
+  if ($env:CLAUDE_PLUGIN_ROOT) {
+    @{ hookSpecificOutput = @{ hookEventName = "SessionStart"; additionalContext = $Msg } } | ConvertTo-Json -Compress -Depth 4 | Write-Output
+  } else {
+    Write-Output $Msg
+  }
+}
+
 function Get-FileSha256 {
   param([string]$Path)
   if (-not (Test-Path $Path)) {
@@ -112,6 +142,7 @@ $AgentHashAfter = Get-FileSha256 $AgentPath
 $AgentUpdated = $AgentHashAfter -and ($AgentHashBefore -ne $AgentHashAfter)
 
 if (-not $AgentUpdated -and (Test-AgentRunning)) {
+  Show-SigninNudge
   exit 0
 }
 
@@ -138,6 +169,7 @@ $Process.Id | Set-Content -NoNewline $PidFile
 
 for ($Attempt = 0; $Attempt -lt 180; $Attempt++) {
   if (Test-AgentRunning) {
+    Show-SigninNudge
     exit 0
   }
   if ($Process.HasExited) {

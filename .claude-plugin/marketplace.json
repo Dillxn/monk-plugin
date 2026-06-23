@@ -10,7 +10,8 @@
       "displayName": "Monk DevOps Agent",
       "source": "./",
       "description": "Deploy and operate full applications with Monk DevOps Agent from Claude Code.",
-      "version": "0.1.28",
+      "version": "0.1.30",
+      "category": "deployment",
       "author": {
         "name": "MonkOS Inc"
       },
