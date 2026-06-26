@@ -116,6 +116,21 @@ function Stop-ManagedAgent {
   }
 }
 
+# Single-instance guard. On Windows-with-bash, Claude Code fires BOTH SessionStart
+# entries: this .ps1 directly, and start-monk-agent.sh which on MINGW/MSYS/CYGWIN
+# re-execs this same .ps1. On a cold start (agent down) the two launchers would
+# otherwise both install and `serve`, racing on the binary and the port. Serialize
+# them on a per-port named mutex: the first launcher installs/starts while the
+# second blocks here, then proceeds and no-ops at the "already running" check
+# below. The OS releases the mutex when the holder exits, so the script's many
+# `exit` points need no explicit unlock.
+$LauncherMutex = New-Object System.Threading.Mutex($false, "Local\monk-agent-launcher-$Port")
+try {
+  [void]$LauncherMutex.WaitOne([TimeSpan]::FromSeconds(190))
+} catch [System.Threading.AbandonedMutexException] {
+  # A previous holder died mid-start; we now own the mutex and continue.
+}
+
 $ManagedAgentPath = Join-Path $InstallDir "monk-agent.exe"
 $AgentHashBefore = Get-FileSha256 $ManagedAgentPath
 

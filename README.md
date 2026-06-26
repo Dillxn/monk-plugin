@@ -88,7 +88,7 @@ runtime:
 - The Monk CLI and daemon (`monk`, `monkd`) are installed or upgraded with
   your package manager: Homebrew on macOS, apt or dnf on Linux, and a
   dedicated Ubuntu WSL distro on Windows.
-- This plugin requires monkd v3.20.8 or newer and prompts to
+- This plugin requires monkd v3.20.10 or newer and prompts to
   upgrade older installs.
 
 To remove everything later:

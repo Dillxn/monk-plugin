@@ -6,6 +6,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/scripts/uninstall-monk-agent.ps1\" -FromHook -Yes",
+            "timeout": 300
+          },
+          {
+            "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/uninstall-monk-agent.sh --from-hook --yes",
             "timeout": 300
           }
@@ -15,6 +20,11 @@
     "SessionStart": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/scripts/start-monk-agent.ps1\"",
+            "timeout": 180
+          },
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/start-monk-agent.sh",
@@ -29,6 +39,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/block-monk.ps1\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/block-monk.sh",
             "timeout": 5
           }
@@ -39,6 +54,11 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/monk-diagnostics.ps1\"",
+            "timeout": 30
+          },
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/monk-diagnostics.sh",

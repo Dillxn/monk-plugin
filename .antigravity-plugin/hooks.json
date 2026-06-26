@@ -3,6 +3,11 @@
     "PreInvocation": [
       {
         "type": "command",
+        "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"./hooks/ensure-monk-agent.ps1\"",
+        "timeout": 10
+      },
+      {
+        "type": "command",
         "command": "./hooks/ensure-monk-agent.sh",
         "timeout": 10
       }
@@ -13,6 +18,11 @@
       {
         "matcher": "run_command",
         "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"./hooks/block-monk.ps1\"",
+            "timeout": 5
+          },
           {
             "type": "command",
             "command": "./hooks/block-monk.sh",
@@ -27,6 +37,11 @@
       {
         "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
         "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"./hooks/monk-diagnostics.ps1\"",
+            "timeout": 30
+          },
           {
             "type": "command",
             "command": "./hooks/monk-diagnostics.sh",
