@@ -90,6 +90,7 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.cluster.exit`
 - `monk.cluster.provider.ensure`
 - `monk.cluster.price`
+- `monk.cluster.catalog`
 - `monk.cluster.estimate`
 - `monk.cluster.ingress.status`
 - `monk.cluster.ingress.ensure`
@@ -122,6 +123,7 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.arrowscript.operator.search`
 - `monk.arrowscript.operator.doc`
 - `monk.feedback.submit`
+- `monk.action.status`
 - `monk://agent/status`
 - `monk://workspace/manifest`
 - `monk://workspace/workloads`
