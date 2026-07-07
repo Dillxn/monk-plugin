@@ -35,17 +35,57 @@ function Test-AgentRunning {
 # context telling the host agent to prompt the user to sign in via /mcp. Without
 # this the host only sees "tools unavailable" and mis-reports it as a connection
 # problem instead of an auth one. Best-effort; never blocks session start.
+#
+# Skippable via MONK_AGENT_SKIP_SIGNIN_NUDGE=1 — see the comment on the sh
+# equivalent (emit_signin_nudge) for why hook-originated calls to an ad-hoc dev
+# port aren't reliable, and why callers with an out-of-band sign-in guarantee
+# (e.g. MONK_AGENT_SIMULATE_AUTH) should skip this check instead.
 function Show-SigninNudge {
-  $StatusUrl = "http://${AgentHost}:$Port/status.json"
+  if ($env:MONK_AGENT_SKIP_SIGNIN_NUDGE -eq "1") { return }
+  # /auth.json is the cheap, auth-only status endpoint (~40ms). Deliberately NOT
+  # /status.json, which runs ~10 synchronous install probes (~2s/call and
+  # serializes under concurrent dashboard/MCP load) — that latency made this
+  # check racy against a cold, signed-out agent.
+  $StatusUrl = "http://${AgentHost}:$Port/auth.json"
+  # A just-(re)started agent can still report a transient MISS on the first probe
+  # (connection refused during the restart window, or a 500 from a cold DPAPI
+  # read the agent itself retries then surfaces as an error rather than a false
+  # signed-out). Both show up here as an EMPTY body, so retry only on empty. A
+  # non-empty body is a definitive answer — signed in OR out — and must be acted
+  # on immediately: retrying a confirmed signedIn:false just adds latency on
+  # precisely the signed-out path this nudge targets. TimeoutSec is modest
+  # because /auth.json is ~40ms; this also bounds how long a hung endpoint can
+  # block the synchronous SessionStart hook (<=3x5s + 2x1s).
+  $Body = ""
+  for ($Attempt = 0; $Attempt -lt 3; $Attempt++) {
+    try {
+      $Response = Invoke-WebRequest -Uri $StatusUrl -UseBasicParsing -TimeoutSec 5
+      $Body = $Response.Content
+    } catch {
+      $Body = ""
+    }
+    if ($Body) {
+      break
+    }
+    if ($Attempt -lt 2) {
+      Start-Sleep -Seconds 1
+    }
+  }
+  # Empty body = read error / 500 / timeout, NOT a confirmed signed-out state —
+  # suppress the nudge. Only a definitive answer reaches the decision below.
+  if (-not $Body) {
+    return
+  }
+  # PowerShell has a native JSON parser (unlike the POSIX-sh sibling, which is
+  # stuck string-matching), so decide structurally: an unparseable payload is
+  # treated as non-definitive (suppress), and only a truthy signedIn returns
+  # without nudging — an explicit signedIn:false falls through to the nudge.
   try {
-    # status.json aggregates runtime/auth state and routinely takes ~3s on a
-    # cold, signed-out agent — the exact state this nudge targets. A short
-    # timeout here silently swallows the nudge, so give it real headroom.
-    $Status = Invoke-RestMethod -Uri $StatusUrl -TimeoutSec 10
+    $Auth = $Body | ConvertFrom-Json
   } catch {
     return
   }
-  if ($Status.auth -and $Status.auth.signedIn) {
+  if ($Auth.signedIn) {
     return
   }
   $Client = if ($env:CLAUDE_PLUGIN_ROOT) { "claude-code" } elseif ($env:PLUGIN_ROOT) { "codex" } else { "unknown" }

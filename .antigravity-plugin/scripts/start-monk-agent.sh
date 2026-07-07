@@ -88,22 +88,43 @@ print()
 # context telling the host agent to prompt the user to sign in via /mcp. Without
 # this the host only sees "tools unavailable" and mis-reports it as a connection
 # problem instead of an auth one. Best-effort; never blocks session start.
+#
+# Skippable via MONK_AGENT_SKIP_SIGNIN_NUDGE=1, for callers that already
+# guarantee sign-in out of band and don't need this nudge's own status check.
 emit_signin_nudge() {
-  status_url="http://$host:$port/status.json"
+  [ "${MONK_AGENT_SKIP_SIGNIN_NUDGE:-0}" = "1" ] && return 0
+  # /auth.json is the cheap, auth-only status endpoint (~40ms). Deliberately NOT
+  # /status.json, which runs ~10 synchronous install probes (~2s/call and
+  # serializes under concurrent dashboard/MCP load) — that latency pushed this
+  # check past the curl timeout and made the nudge racy.
+  status_url="http://$host:$port/auth.json"
   body=""
-  # status.json aggregates runtime/auth state and routinely takes ~3s on a cold,
-  # signed-out agent — the exact state this nudge targets. A short timeout here
-  # silently swallows the nudge, so give it real headroom.
-  if command -v curl >/dev/null 2>&1; then
-    body="$(curl -fsS --max-time 10 "$status_url" 2>/dev/null || true)"
-  elif command -v wget >/dev/null 2>&1; then
-    body="$(wget -q -T 10 -O - "$status_url" 2>/dev/null || true)"
-  fi
-  [ -n "$body" ] || return 0
-  # Compact JSON from app.status(); signed-in users get no nudge.
+  # A just-(re)started agent can still report a transient MISS on the first probe
+  # (connection refused during the restart window, or a 500 from a cold macOS
+  # Keychain read that the agent itself retries then surfaces as an error rather
+  # than a false signed-out). Both show up here as an EMPTY body, so retry only on
+  # empty. A non-empty body is a definitive answer — signed in OR out — and must be
+  # acted on immediately: retrying a confirmed signedIn:false just adds ~2s and two
+  # extra probes on precisely the signed-out path this nudge targets.
+  # --max-time is modest because /auth.json is ~40ms; this also bounds how long a
+  # hung endpoint can block the synchronous SessionStart hook (<=3x5+2x1s).
+  attempt=0
+  while [ "$attempt" -lt 3 ]; do
+    if command -v curl >/dev/null 2>&1; then
+      body="$(curl -fsS --max-time 5 "$status_url" 2>/dev/null || true)"
+    elif command -v wget >/dev/null 2>&1; then
+      body="$(wget -q -T 5 -O - "$status_url" 2>/dev/null || true)"
+    fi
+    [ -n "$body" ] && break
+    attempt=$((attempt + 1))
+    [ "$attempt" -lt 3 ] && sleep 1
+  done
   case "$body" in
     *'"signedIn":true'*) return 0 ;;
   esac
+  # Empty body = read error / 500 / timeout, NOT a confirmed signed-out state —
+  # suppress the nudge. Only an affirmative signedIn:false reaches the nudge below.
+  [ -n "$body" ] || return 0
   client="unknown"
   if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
     client="claude-code"
@@ -178,12 +199,18 @@ if [ -n "$agent_hash_after" ] && [ "$agent_hash_before" != "$agent_hash_after" ]
 fi
 
 launchd_configured() {
+  # Deliberately excludes PATH: it is derived from the invoking shell/app and
+  # legitimately differs across hosts (Claude Code, VS Code, plain terminal) and
+  # even across sessions of the same host (nvm/asdf switches, plugin cache
+  # entries). Gating a restart on an exact PATH match meant nearly every new
+  # session tore down an already-running, already-authenticated agent and raced
+  # the cold-start auth read in emit_signin_nudge. PATH is still refreshed
+  # in the plist whenever a real restart happens for another reason.
   [ -f "$launchd_plist" ] &&
     grep -q "<string>$auth_client_id</string>" "$launchd_plist" &&
     grep -q "<string>$auth_url</string>" "$launchd_plist" &&
     grep -q "<string>$auth_audience</string>" "$launchd_plist" &&
     grep -q "<string>$autospin_url</string>" "$launchd_plist" &&
-    grep -q "<string>$agent_path_env</string>" "$launchd_plist" &&
     grep -q "<string>${MONK_AGENT_LOCAL:-}</string>" "$launchd_plist"
 }
 

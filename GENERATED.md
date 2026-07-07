@@ -2,9 +2,9 @@
 
 This plugin tree is generated from `monk-agent`.
 
-- agentVersion: 0.1.37
-- pluginVersion: 0.1.37
-- sourceRevision: 23d2cac
+- agentVersion: 0.1.38
+- pluginVersion: 0.1.38
+- sourceRevision: a632308
 
 Do not edit generated public output directly. Make source changes in
 `monk-agent/plugin` and regenerate the plugin artifact.
