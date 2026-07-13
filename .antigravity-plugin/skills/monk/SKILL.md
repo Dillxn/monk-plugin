@@ -63,6 +63,7 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.session.init`
 - `monk.scope.status`
 - `monk.scope.bind`
+- `monk.scope.workspace_list`
 - `monk.scope.workspace_delete`
 - `monk.scope.project_delete`
 - `monk.org.usage`
@@ -78,6 +79,7 @@ Prefer `monk-agent` MCP tools and resources:
 - `monk.project.deploy`
 - `monk.environment.list`
 - `monk.environment.select`
+- `monk.environment.delete`
 - `monk.capsule.setup`
 - `monk.capsule.list`
 - `monk.capsule.secrets.update`

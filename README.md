@@ -41,6 +41,15 @@ To update an existing install:
 
 ### Cursor
 
+Install from the [Cursor marketplace](https://cursor.com/marketplace/monk-io),
+or from the command palette:
+
+```text
+/add-plugin monk
+```
+
+Or, pointing directly at the plugin repo:
+
 ```text
 /add-plugin https://github.com/monk-io/monk-plugin
 ```
